@@ -1,0 +1,6 @@
+import {
+  "aurum/lib/tvm",
+  "aurum/lib/capital",
+}
+
+pkgtype(kind: "executable")

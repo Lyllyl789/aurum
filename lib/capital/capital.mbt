@@ -7,12 +7,24 @@
 // 折现复用了 lib/tvm 的现值原语，保持单笔与序列口径一致。
 
 ///|
+fn tvm_present_value_or_nan(
+  amount : Double,
+  rate : Double,
+  periods : Int,
+) -> Double {
+  match @tvm.present_value(amount, rate, periods) {
+    Some(value) => value
+    None => @double.not_a_number
+  }
+}
+
+///|
 /// 净现值：NPV = Σ CF_t / (1 + r)^t。
 pub fn net_present_value(rate : Double, cashflows : Array[Double]) -> Double {
   let mut total = 0.0
   let mut t = 0
   while t < cashflows.length() {
-    total = total + @tvm.present_value(cashflows[t], rate, t)
+    total = total + tvm_present_value_or_nan(cashflows[t], rate, t)
     t = t + 1
   }
   total
@@ -72,7 +84,7 @@ pub fn payback_period(cashflows : Array[Double]) -> Double {
     let cf = cashflows[t]
     cumulative = cumulative + cf
     if cumulative >= 0.0 {
-      return (t - 1).to_double() + (-prev) / cf
+      return (t - 1).to_double() + -prev / cf
     }
     prev = cumulative
     t = t + 1
@@ -96,10 +108,10 @@ pub fn discounted_payback_period(
   let mut prev = cumulative
   let mut t = 1
   while t < cashflows.length() {
-    let dcf = @tvm.present_value(cashflows[t], rate, t)
+    let dcf = tvm_present_value_or_nan(cashflows[t], rate, t)
     cumulative = cumulative + dcf
     if cumulative >= 0.0 {
-      return (t - 1).to_double() + (-prev) / dcf
+      return (t - 1).to_double() + -prev / dcf
     }
     prev = cumulative
     t = t + 1
@@ -120,8 +132,8 @@ pub fn profitability_index(rate : Double, cashflows : Array[Double]) -> Double {
   let mut pv_future = 0.0
   let mut t = 1
   while t < cashflows.length() {
-    pv_future = pv_future + @tvm.present_value(cashflows[t], rate, t)
+    pv_future = pv_future + tvm_present_value_or_nan(cashflows[t], rate, t)
     t = t + 1
   }
-  pv_future / (-initial)
+  pv_future / -initial
 }

@@ -1,3 +1,4 @@
 import {
   "aurum/lib/tvm",
+  "moonbitlang/core/double",
 }

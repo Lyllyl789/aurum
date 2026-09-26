@@ -1,89 +1,136 @@
 // Copyright 2026 Aurum Authors
 // Licensed under Apache-2.0
 //
-// 货币时间价值：现值、终值与年金的复利演算。
-// 利率以小数表示（0.05 即年利率 5%），期数以整数计。
-// 计算基于 IEEE-754 双精度浮点，适合教学与估算；
-// 需要精确到分的场合，请结合 lib/money 的 round_div 原语。
+// TVM uses IEEE-754 Double for estimates, not exact monetary amounts.
+// None means invalid input or a non-finite computed result.
 
 ///|
-/// 单笔现金流的终值：FV = PV × (1 + r)^n。
-pub fn future_value(pv : Double, rate : Double, periods : Int) -> Double {
-  pv * @math.pow(1.0 + rate, periods.to_double())
+fn finite(x : Double) -> Bool {
+  !x.is_nan() && !x.is_inf()
 }
 
 ///|
-/// 单笔现金流的现值：PV = FV ÷ (1 + r)^n。
-pub fn present_value(fv : Double, rate : Double, periods : Int) -> Double {
-  fv * @math.pow(1.0 + rate, -periods.to_double())
+fn valid_term(amount : Double, rate : Double, periods : Int) -> Bool {
+  finite(amount) && finite(rate) && rate > -1.0 && periods >= 0
 }
 
 ///|
-/// 普通年金终值（每期期末收付）：FV = PMT × [((1+r)^n − 1) / r]。
+fn checked(value : Double) -> Double? {
+  if finite(value) {
+    Some(value)
+  } else {
+    None
+  }
+}
+
+///|
+/// FV = PV × (1+r)^n. None for non-finite values, r <= -1, or n < 0.
+pub fn future_value(pv : Double, rate : Double, periods : Int) -> Double? {
+  if !valid_term(pv, rate, periods) {
+    return None
+  }
+  checked(pv * @math.pow(1.0 + rate, periods.to_double()))
+}
+
+///|
+/// PV = FV / (1+r)^n. Uses a negative exponent to avoid overflow in the divisor.
+pub fn present_value(fv : Double, rate : Double, periods : Int) -> Double? {
+  if !valid_term(fv, rate, periods) {
+    return None
+  }
+  checked(fv * @math.pow(1.0 + rate, -periods.to_double()))
+}
+
+///|
+/// Ordinary annuity FV; zero periods yield zero. None on invalid or non-finite output.
 pub fn future_value_annuity(
   payment : Double,
   rate : Double,
   periods : Int,
-) -> Double {
-  if rate == 0.0 {
-    payment * periods.to_double()
-  } else {
-    payment * (@math.pow(1.0 + rate, periods.to_double()) - 1.0) / rate
+) -> Double? {
+  if !valid_term(payment, rate, periods) {
+    return None
   }
+  if periods == 0 {
+    return Some(0.0)
+  }
+  if rate == 0.0 {
+    return checked(payment * periods.to_double())
+  }
+  checked(
+    payment * (@math.expm1(periods.to_double() * @math.ln_1p(rate)) / rate),
+  )
 }
 
 ///|
-/// 普通年金现值（每期期末收付）：PV = PMT × [(1 − (1+r)^−n) / r]。
+/// Ordinary annuity PV; zero periods yield zero. None on invalid or non-finite output.
 pub fn present_value_annuity(
   payment : Double,
   rate : Double,
   periods : Int,
-) -> Double {
-  if rate == 0.0 {
-    payment * periods.to_double()
-  } else {
-    payment * (1.0 - @math.pow(1.0 + rate, -periods.to_double())) / rate
+) -> Double? {
+  if !valid_term(payment, rate, periods) {
+    return None
   }
+  if periods == 0 {
+    return Some(0.0)
+  }
+  if rate == 0.0 {
+    return checked(payment * periods.to_double())
+  }
+  checked(
+    payment * (-@math.expm1(-periods.to_double() * @math.ln_1p(rate)) / rate),
+  )
 }
 
 ///|
-/// 期初年金终值：FV = 普通年金终值 × (1 + r)。
+/// Annuity due FV = ordinary annuity FV × (1+r).
 pub fn future_value_annuity_due(
   payment : Double,
   rate : Double,
   periods : Int,
-) -> Double {
-  future_value_annuity(payment, rate, periods) * (1.0 + rate)
+) -> Double? {
+  match future_value_annuity(payment, rate, periods) {
+    Some(value) => checked(value * (1.0 + rate))
+    None => None
+  }
 }
 
 ///|
-/// 期初年金现值：PV = 普通年金现值 × (1 + r)。
+/// Annuity due PV = ordinary annuity PV × (1+r).
 pub fn present_value_annuity_due(
   payment : Double,
   rate : Double,
   periods : Int,
-) -> Double {
-  present_value_annuity(payment, rate, periods) * (1.0 + rate)
-}
-
-///|
-/// 永续年金现值：PV = PMT / r。
-pub fn present_value_perpetuity(payment : Double, rate : Double) -> Double {
-  if rate == 0.0 {
-    abort("present_value_perpetuity: rate must be non-zero")
+) -> Double? {
+  match present_value_annuity(payment, rate, periods) {
+    Some(value) => checked(value * (1.0 + rate))
+    None => None
   }
-  payment / rate
 }
 
 ///|
-/// 增长永续年金现值：PV = PMT / (r − g)，要求 r > g。
+/// Perpetuity PV = payment / rate; requires a strictly positive discount rate.
+pub fn present_value_perpetuity(payment : Double, rate : Double) -> Double? {
+  if !finite(payment) || !finite(rate) || rate <= 0.0 {
+    return None
+  }
+  checked(payment / rate)
+}
+
+///|
+/// Growing perpetuity PV = payment / (rate-growth); requires rate > growth > -1.
 pub fn present_value_growing_perpetuity(
   payment : Double,
   rate : Double,
   growth : Double,
-) -> Double {
-  if rate <= growth {
-    abort("present_value_growing_perpetuity: rate must exceed growth")
+) -> Double? {
+  if !finite(payment) ||
+    !finite(rate) ||
+    !finite(growth) ||
+    growth <= -1.0 ||
+    rate <= growth {
+    return None
   }
-  payment / (rate - growth)
+  checked(payment / (rate - growth))
 }

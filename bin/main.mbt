@@ -18,7 +18,10 @@ fn main {
     years.to_string() +
     " 年",
   )
-  println("  FV = " + @tvm.future_value(pv, rate, years).to_string())
+  match @tvm.future_value(pv, rate, years) {
+    Some(value) => println("  FV = " + value.to_string())
+    None => println("  FV = 无法计算")
+  }
 
   let annuity_pmt = 1000.0
   let annuity_n = 20
@@ -29,16 +32,18 @@ fn main {
     annuity_n.to_string() +
     " 期",
   )
-  println(
-    "  PV = " +
-    @tvm.present_value_annuity(annuity_pmt, rate, annuity_n).to_string(),
-  )
+  match @tvm.present_value_annuity(annuity_pmt, rate, annuity_n) {
+    Some(value) => println("  PV = " + value.to_string())
+    None => println("  PV = 无法计算")
+  }
 
   // 资本预算
   let cashflows = [-1000.0, 300.0, 400.0, 500.0]
   let discount = 0.10
   println("资本预算：现金流 [-1000, 300, 400, 500]，折现率 10%")
-  println("  NPV = " + @capital.net_present_value(discount, cashflows).to_string())
+  println(
+    "  NPV = " + @capital.net_present_value(discount, cashflows).to_string(),
+  )
   println("  IRR = " + @capital.internal_rate_of_return(cashflows).to_string())
   println(
     "  静态回收期 = " +

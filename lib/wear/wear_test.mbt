@@ -2,13 +2,11 @@
 // Licensed under Apache-2.0
 
 ///|
-/// 浮点近似比较，容忍双精度误差。
-fn approx(a : Double, b : Double, eps : Double) -> Bool {
-  let d = a - b
-  if d < 0.0 {
-    -d < eps
-  } else {
-    d < eps
+/// 对 Option 值做浮点近似比较。
+fn approx(value : Double?, expected : Double, eps : Double) -> Bool {
+  match value {
+    Some(actual) => (actual - expected).abs() < eps
+    None => false
   }
 }
 
@@ -52,3 +50,13 @@ test "units of production depreciation" {
     approx(units_of_production_depreciation(10000.0, 1000.0, 10000.0, 2000.0), 1800.0, 1.0e-9),
   )
 }
+
+///|
+test "invalid inputs return None" {
+  assert_true(straight_line_depreciation(10000.0, 1000.0, 0) == None)
+  assert_true(double_declining_balance_depreciation(10000.0, 1000.0, 5, 0) == None)
+  assert_true(double_declining_balance_depreciation(10000.0, 1000.0, 5, 6) == None)
+  assert_true(sum_of_years_digits_depreciation(10000.0, 1000.0, 5, 0) == None)
+  assert_true(units_of_production_depreciation(10000.0, 1000.0, 0.0, 2000.0) == None)
+}
+

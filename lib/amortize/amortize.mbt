@@ -4,6 +4,13 @@
 // 贷款摊销：等额本息与等额本金的还款计划演算。
 // 利率为“每期利率”（如月利率 = 年利率 / 12），期数以整数计。
 // 计算基于双精度浮点，适合教学与估算；精确到分的场合请结合 lib/money。
+// 返回 Double? / Array[Payment]?：None 表示非法输入或非有限结果。
+
+///|
+/// 有限性检查。
+fn finite(x : Double) -> Bool {
+  !x.is_nan() && !x.is_inf()
+}
 
 ///|
 /// 每期还款明细：期号、本金、利息与期末剩余本金。
@@ -20,15 +27,25 @@ pub fn equal_installment_payment(
   principal : Double,
   rate : Double,
   periods : Int,
-) -> Double {
-  if periods <= 0 {
-    abort("equal_installment_payment: periods must be positive")
+) -> Double? {
+  if !finite(principal) || !finite(rate) || rate <= -1.0 || periods <= 0 {
+    return None
   }
   if rate == 0.0 {
-    principal / periods.to_double()
+    let value = principal / periods.to_double()
+    if finite(value) {
+      Some(value)
+    } else {
+      None
+    }
   } else {
     let factor = @math.pow(1.0 + rate, periods.to_double())
-    principal * rate * factor / (factor - 1.0)
+    let value = principal * rate * factor / (factor - 1.0)
+    if finite(value) {
+      Some(value)
+    } else {
+      None
+    }
   }
 }
 
@@ -38,8 +55,11 @@ pub fn equal_installment_schedule(
   principal : Double,
   rate : Double,
   periods : Int,
-) -> Array[Payment] {
-  let payment = equal_installment_payment(principal, rate, periods)
+) -> Array[Payment]? {
+  let payment = match equal_installment_payment(principal, rate, periods) {
+    Some(value) => value
+    None => return None
+  }
   let default = { period: 0, principal: 0.0, interest: 0.0, balance: 0.0 }
   let result = Array::make(periods, default)
   let mut balance = principal
@@ -48,10 +68,13 @@ pub fn equal_installment_schedule(
     let interest = balance * rate
     let principal_part = payment - interest
     balance = balance - principal_part
+    if !finite(balance) {
+      return None
+    }
     result[i] = { period: i + 1, principal: principal_part, interest: interest, balance: balance }
     i = i + 1
   }
-  result
+  Some(result)
 }
 
 ///|
@@ -60,9 +83,9 @@ pub fn equal_principal_schedule(
   principal : Double,
   rate : Double,
   periods : Int,
-) -> Array[Payment] {
-  if periods <= 0 {
-    abort("equal_principal_schedule: periods must be positive")
+) -> Array[Payment]? {
+  if !finite(principal) || !finite(rate) || rate <= -1.0 || periods <= 0 {
+    return None
   }
   let principal_part = principal / periods.to_double()
   let default = { period: 0, principal: 0.0, interest: 0.0, balance: 0.0 }
@@ -72,10 +95,13 @@ pub fn equal_principal_schedule(
   while i < periods {
     let interest = balance * rate
     balance = balance - principal_part
+    if !finite(balance) {
+      return None
+    }
     result[i] = { period: i + 1, principal: principal_part, interest: interest, balance: balance }
     i = i + 1
   }
-  result
+  Some(result)
 }
 
 ///|
@@ -84,8 +110,18 @@ pub fn total_interest_equal_installment(
   principal : Double,
   rate : Double,
   periods : Int,
-) -> Double {
-  equal_installment_payment(principal, rate, periods) * periods.to_double() - principal
+) -> Double? {
+  match equal_installment_payment(principal, rate, periods) {
+    Some(payment) => {
+      let value = payment * periods.to_double() - principal
+      if finite(value) {
+        Some(value)
+      } else {
+        None
+      }
+    }
+    None => None
+  }
 }
 
 ///|
@@ -94,9 +130,14 @@ pub fn total_interest_equal_principal(
   principal : Double,
   rate : Double,
   periods : Int,
-) -> Double {
-  if periods <= 0 {
-    abort("total_interest_equal_principal: periods must be positive")
+) -> Double? {
+  if !finite(principal) || !finite(rate) || rate <= -1.0 || periods <= 0 {
+    return None
   }
-  principal * rate * (periods + 1).to_double() / 2.0
+  let value = principal * rate * (periods + 1).to_double() / 2.0
+  if finite(value) {
+    Some(value)
+  } else {
+    None
+  }
 }

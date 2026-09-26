@@ -1,6 +1,13 @@
 import {
   "aurum/lib/tvm",
   "aurum/lib/capital",
+  "aurum/lib/amortize",
+  "aurum/lib/wear",
+  "aurum/lib/bond",
+  "aurum/lib/ratio",
+  "aurum/lib/currency",
+  "aurum/lib/money",
 }
 
 pkgtype(kind: "executable")
+

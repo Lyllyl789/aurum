@@ -41,17 +41,24 @@ fn main {
   let cashflows = [-1000.0, 300.0, 400.0, 500.0]
   let discount = 0.10
   println("资本预算：现金流 [-1000, 300, 400, 500]，折现率 10%")
-  println(
-    "  NPV = " + @capital.net_present_value(discount, cashflows).to_string(),
-  )
-  println("  IRR = " + @capital.internal_rate_of_return(cashflows).to_string())
-  println(
-    "  静态回收期 = " +
-    @capital.payback_period(cashflows).to_string() +
-    " 年",
-  )
-  println(
-    "  盈利指数 = " +
-    @capital.profitability_index(discount, cashflows).to_string(),
-  )
+  match @capital.net_present_value(discount, cashflows) {
+    Some(value) => println("  NPV = " + value.to_string())
+    None => println("  NPV = 无法计算")
+  }
+  match @capital.internal_rate_of_return(cashflows) {
+    Some(value) => println("  唯一 IRR = " + value.to_string())
+    None => println("  唯一 IRR = 无法确定")
+  }
+  match @capital.payback_period(cashflows) {
+    Some(value) => println("  静态回收期 = " + value.to_string() + " 年")
+    None => println("  静态回收期 = 未回收或无法计算")
+  }
+  match @capital.discounted_payback_period(discount, cashflows) {
+    Some(value) => println("  折现回收期 = " + value.to_string() + " 年")
+    None => println("  折现回收期 = 未回收或无法计算")
+  }
+  match @capital.profitability_index(discount, cashflows) {
+    Some(value) => println("  盈利指数 = " + value.to_string())
+    None => println("  盈利指数 = 无法计算")
+  }
 }

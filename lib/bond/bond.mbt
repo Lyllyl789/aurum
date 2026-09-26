@@ -13,7 +13,12 @@ fn finite(x : Double) -> Bool {
 
 ///|
 /// 债券价格 = 票息年金现值 + 面值现值。
-pub fn price(coupon : Double, face : Double, yld : Double, periods : Int) -> Double? {
+pub fn price(
+  coupon : Double,
+  face : Double,
+  yld : Double,
+  periods : Int,
+) -> Double? {
   if !finite(coupon) || !finite(face) || !finite(yld) || periods <= 0 {
     return None
   }
@@ -69,11 +74,13 @@ pub fn yield_to_maturity(
   }
   let mut lo = -0.999999999999
   let mut hi = 10.0
-  let mut f_lo = match price_difference(lo, coupon, face, periods, market_price) {
+  let mut f_lo = match
+    price_difference(lo, coupon, face, periods, market_price) {
     Some(value) => value
     None => return None
   }
-  let mut f_hi = match price_difference(hi, coupon, face, periods, market_price) {
+  let mut f_hi = match
+    price_difference(hi, coupon, face, periods, market_price) {
     Some(value) => value
     None => return None
   }
@@ -95,7 +102,8 @@ pub fn yield_to_maturity(
     if mid == lo || mid == hi {
       return Some(mid)
     }
-    let f_mid = match price_difference(mid, coupon, face, periods, market_price) {
+    let f_mid = match
+      price_difference(mid, coupon, face, periods, market_price) {
       Some(value) => value
       None => return None
     }

@@ -59,4 +59,17 @@ test "invalid conversion returns None" {
   assert_true(convert(cny, "USD", -1.0) == None)
   assert_true(convert(cny, "USD", @double.not_a_number) == None)
   assert_true(convert(cny, "XXX", 0.14) == None)
+  assert_true(convert(cny, "USD", @double.infinity) == None)
+  assert_true(convert(cny, "USD", 1.0e20) == None)
+  assert_true(convert(@money.Money::of(1, "CNY"), "USD", 2147483647.5) == None)
+  assert_true(convert(@money.Money::of(-1, "CNY"), "USD", 2147483648.5) == None)
+}
+
+///|
+test "conversion keeps representable negative Int boundary" {
+  let amount = @money.Money::of(-1, "CNY")
+  match convert(amount, "USD", 2147483648.0) {
+    Some(value) => assert_eq(value.minor(), -2147483648)
+    None => fail("expected Int minimum")
+  }
 }

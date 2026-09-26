@@ -6,13 +6,6 @@ readme = "README.md"
 
 license = "Apache-2.0"
 
-keywords = [
-  "finance",
-  "money",
-  "financial-math",
-  "tvm",
-  "npv",
-  "accounting",
-]
+keywords = [ "finance", "money", "financial-math", "tvm", "npv", "accounting" ]
 
 description = "Precise financial math and corporate finance toolkit for MoonBit"

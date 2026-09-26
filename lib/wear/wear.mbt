@@ -64,7 +64,11 @@ pub fn double_declining_balance_depreciation(
     i = i + 1
   }
   let value = cost - salvage
-  if finite(value) { Some(value) } else { None }
+  if finite(value) {
+    Some(value)
+  } else {
+    None
+  }
 }
 
 ///|

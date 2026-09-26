@@ -26,7 +26,10 @@ fn ratio(numerator : Double, denominator : Double) -> Double? {
 
 ///|
 /// 流动比率 = 流动资产 / 流动负债。
-pub fn current_ratio(current_assets : Double, current_liabilities : Double) -> Double? {
+pub fn current_ratio(
+  current_assets : Double,
+  current_liabilities : Double,
+) -> Double? {
   ratio(current_assets, current_liabilities)
 }
 
@@ -42,7 +45,10 @@ pub fn quick_ratio(
 
 ///|
 /// 资产负债率 = 总负债 / 总资产。
-pub fn debt_to_assets(total_liabilities : Double, total_assets : Double) -> Double? {
+pub fn debt_to_assets(
+  total_liabilities : Double,
+  total_assets : Double,
+) -> Double? {
   ratio(total_liabilities, total_assets)
 }
 
@@ -111,6 +117,9 @@ pub fn price_to_book(
 
 ///|
 /// 每股收益 = 净利润 / 流通在外普通股股数。
-pub fn earnings_per_share(net_income : Double, shares_outstanding : Double) -> Double? {
+pub fn earnings_per_share(
+  net_income : Double,
+  shares_outstanding : Double,
+) -> Double? {
   ratio(net_income, shares_outstanding)
 }

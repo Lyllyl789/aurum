@@ -23,18 +23,18 @@ pub struct Currency {
 /// 按 ISO 4217 代码查询货币元数据；未知代码返回 None。
 pub fn lookup(code : String) -> Currency? {
   match code {
-    "CNY" => Some({ code: "CNY", symbol: "¥", decimals: 2 })
-    "USD" => Some({ code: "USD", symbol: "$", decimals: 2 })
-    "EUR" => Some({ code: "EUR", symbol: "€", decimals: 2 })
-    "GBP" => Some({ code: "GBP", symbol: "£", decimals: 2 })
-    "JPY" => Some({ code: "JPY", symbol: "¥", decimals: 0 })
-    "KRW" => Some({ code: "KRW", symbol: "₩", decimals: 0 })
-    "VND" => Some({ code: "VND", symbol: "₫", decimals: 0 })
-    "KWD" => Some({ code: "KWD", symbol: "KD", decimals: 3 })
-    "BHD" => Some({ code: "BHD", symbol: "BD", decimals: 3 })
-    "OMR" => Some({ code: "OMR", symbol: "RO", decimals: 3 })
-    "JOD" => Some({ code: "JOD", symbol: "JD", decimals: 3 })
-    "TND" => Some({ code: "TND", symbol: "DT", decimals: 3 })
+    "CNY" => Some({ code: "CNY", symbol: "¥", decimals: 2, })
+    "USD" => Some({ code: "USD", symbol: "$", decimals: 2, })
+    "EUR" => Some({ code: "EUR", symbol: "€", decimals: 2, })
+    "GBP" => Some({ code: "GBP", symbol: "£", decimals: 2, })
+    "JPY" => Some({ code: "JPY", symbol: "¥", decimals: 0, })
+    "KRW" => Some({ code: "KRW", symbol: "₩", decimals: 0, })
+    "VND" => Some({ code: "VND", symbol: "₫", decimals: 0, })
+    "KWD" => Some({ code: "KWD", symbol: "KD", decimals: 3, })
+    "BHD" => Some({ code: "BHD", symbol: "BD", decimals: 3, })
+    "OMR" => Some({ code: "OMR", symbol: "RO", decimals: 3, })
+    "JOD" => Some({ code: "JOD", symbol: "JD", decimals: 3, })
+    "TND" => Some({ code: "TND", symbol: "DT", decimals: 3, })
     _ => None
   }
 }
@@ -45,14 +45,19 @@ fn round_half_up(x : Double) -> Int {
   if x >= 0.0 {
     (x + 0.5).to_int()
   } else {
-    -((-x + 0.5).to_int())
+    -(-x + 0.5).to_int()
   }
 }
 
 ///|
 /// 汇率换算：将金额按汇率换算为目标币种，结果四舍五入到目标币种最小单位。
-/// rate 表示 1 单位源币种可兑换的目标币种数量；非法输入或未知币种返回 None。
-pub fn convert(amount : @money.Money, target : String, rate : Double) -> @money.Money? {
+/// rate 由调用方提供，表示 1 单位源币种可兑换的目标币种数量。
+/// 非正或非有限汇率、未知目标币种、非有限或超出 Int 范围的换算结果返回 None。
+pub fn convert(
+  amount : @money.Money,
+  target : String,
+  rate : Double,
+) -> @money.Money? {
   if !finite(rate) || rate <= 0.0 {
     return None
   }
@@ -63,9 +68,17 @@ pub fn convert(amount : @money.Money, target : String, rate : Double) -> @money.
         None => None
         Some(dst) => {
           let scale = dst.decimals - src.decimals
-          let scaled = amount.minor().to_double() * rate * @math.pow(10.0, scale.to_double())
-          if !finite(scaled) {
+          let scaled = amount.minor().to_double() *
+            rate *
+            @math.pow(10.0, scale.to_double())
+          // Half-up rounding must still fit in Money's Int minor-unit range.
+          if !finite(scaled) ||
+            scaled >= 2147483647.5 ||
+            scaled <= -2147483648.5 {
             return None
+          }
+          if scaled <= -2147483647.5 {
+            return Some(@money.Money::of(-2147483648, target))
           }
           Some(@money.Money::of(round_half_up(scaled), target))
         }

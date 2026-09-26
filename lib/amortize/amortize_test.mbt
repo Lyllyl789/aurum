@@ -13,9 +13,13 @@ fn approx(value : Double?, expected : Double, eps : Double) -> Bool {
 ///|
 test "equal installment payment" {
   // 本金 10000，月利率 1%，12 期：月供约 888.49
-  assert_true(approx(equal_installment_payment(10000.0, 0.01, 12), 888.4878869, 1.0e-6))
+  assert_true(
+    approx(equal_installment_payment(10000.0, 0.01, 12), 888.4878869, 1.0e-6),
+  )
   // 零利率时即为等额分摊
-  assert_true(approx(equal_installment_payment(10000.0, 0.0, 12), 833.3333333, 1.0e-6))
+  assert_true(
+    approx(equal_installment_payment(10000.0, 0.0, 12), 833.3333333, 1.0e-6),
+  )
 }
 
 ///|
@@ -53,9 +57,15 @@ test "equal principal schedule" {
 ///|
 test "total interest" {
   assert_true(
-    approx(total_interest_equal_installment(10000.0, 0.01, 12), 661.8546414, 1.0e-6),
+    approx(
+      total_interest_equal_installment(10000.0, 0.01, 12),
+      661.8546414,
+      1.0e-6,
+    ),
   )
-  assert_true(approx(total_interest_equal_principal(10000.0, 0.01, 12), 650.0, 1.0e-9))
+  assert_true(
+    approx(total_interest_equal_principal(10000.0, 0.01, 12), 650.0, 1.0e-9),
+  )
 }
 
 ///|
@@ -67,4 +77,3 @@ test "invalid inputs return None" {
   assert_true(total_interest_equal_installment(10000.0, 0.01, 0) == None)
   assert_true(total_interest_equal_principal(10000.0, 0.01, 0) == None)
 }
-

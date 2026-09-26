@@ -21,7 +21,9 @@ test "bond price at par and premium" {
   // 票息率等于收益率：平价
   assert_true(approx_option(price(50.0, 1000.0, 0.05, 10), 1000.0, 1.0e-6))
   // 票息率 6% 高于收益率 5%：溢价
-  assert_true(approx_option(price(60.0, 1000.0, 0.05, 10), 1077.21734929, 1.0e-6))
+  assert_true(
+    approx_option(price(60.0, 1000.0, 0.05, 10), 1077.21734929, 1.0e-6),
+  )
 }
 
 ///|
@@ -38,14 +40,24 @@ test "yield to maturity" {
 ///|
 test "duration" {
   // 零息债券麦考利久期等于期数，修正久期再除以 (1+y)
-  assert_true(approx_option(macaulay_duration(0.0, 1000.0, 0.05, 10), 10.0, 1.0e-6))
-  assert_true(approx_option(modified_duration(0.0, 1000.0, 0.05, 10), 9.5238095238, 1.0e-6))
+  assert_true(
+    approx_option(macaulay_duration(0.0, 1000.0, 0.05, 10), 10.0, 1.0e-6),
+  )
+  assert_true(
+    approx_option(
+      modified_duration(0.0, 1000.0, 0.05, 10),
+      9.5238095238,
+      1.0e-6,
+    ),
+  )
 }
 
 ///|
 test "convexity" {
   // 零息债券凸性 = n(n+1)/(1+y)^2
-  assert_true(approx_option(convexity(0.0, 1000.0, 0.05, 10), 99.77324263, 1.0e-6))
+  assert_true(
+    approx_option(convexity(0.0, 1000.0, 0.05, 10), 99.77324263, 1.0e-6),
+  )
 }
 
 ///|

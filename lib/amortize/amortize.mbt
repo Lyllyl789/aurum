@@ -60,7 +60,7 @@ pub fn equal_installment_schedule(
     Some(value) => value
     None => return None
   }
-  let default = { period: 0, principal: 0.0, interest: 0.0, balance: 0.0 }
+  let default = { period: 0, principal: 0.0, interest: 0.0, balance: 0.0, }
   let result = Array::make(periods, default)
   let mut balance = principal
   let mut i = 0
@@ -71,7 +71,7 @@ pub fn equal_installment_schedule(
     if !finite(balance) {
       return None
     }
-    result[i] = { period: i + 1, principal: principal_part, interest: interest, balance: balance }
+    result[i] = { period: i + 1, principal: principal_part, interest, balance, }
     i = i + 1
   }
   Some(result)
@@ -88,7 +88,7 @@ pub fn equal_principal_schedule(
     return None
   }
   let principal_part = principal / periods.to_double()
-  let default = { period: 0, principal: 0.0, interest: 0.0, balance: 0.0 }
+  let default = { period: 0, principal: 0.0, interest: 0.0, balance: 0.0, }
   let result = Array::make(periods, default)
   let mut balance = principal
   let mut i = 0
@@ -98,7 +98,7 @@ pub fn equal_principal_schedule(
     if !finite(balance) {
       return None
     }
-    result[i] = { period: i + 1, principal: principal_part, interest: interest, balance: balance }
+    result[i] = { period: i + 1, principal: principal_part, interest, balance, }
     i = i + 1
   }
   Some(result)

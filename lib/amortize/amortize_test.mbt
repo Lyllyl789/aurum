@@ -77,3 +77,19 @@ test "invalid inputs return None" {
   assert_true(total_interest_equal_installment(10000.0, 0.01, 0) == None)
   assert_true(total_interest_equal_principal(10000.0, 0.01, 0) == None)
 }
+
+///|
+test "schedules reject non finite fields" {
+  assert_true(equal_principal_schedule(1.0e308, 10.0, 2) == None)
+}
+
+///|
+test "equal principal total interest handles large period count" {
+  assert_true(
+    approx(
+      total_interest_equal_principal(1.0, 0.01, 2147483647),
+      10737418.24,
+      1.0e-6,
+    ),
+  )
+}

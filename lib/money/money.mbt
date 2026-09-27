@@ -28,13 +28,13 @@ pub fn round_half_even() -> RoundMode {
 }
 
 ///|
-/// 返回“向下取整”舍入策略。
+/// 返回向零截断策略（负数不按数学 floor 取整）。
 pub fn round_down() -> RoundMode {
   Down
 }
 
 ///|
-/// 返回“向上取整”舍入策略。
+/// 返回远离零取整策略（负数不按数学 ceil 取整）。
 pub fn round_up() -> RoundMode {
   Up
 }
@@ -148,11 +148,12 @@ pub fn round_div(numerator : Int, denominator : Int, mode : RoundMode) -> Int {
   let q = numerator / denominator
   let r = numerator % denominator
   let abs_r = if r < 0 { -r } else { r }
+  let twice = abs_r.to_int64() * 2L
   match mode {
     Down => q
     Up => if r == 0 { q } else if numerator >= 0 { q + 1 } else { q - 1 }
     HalfUp =>
-      if abs_r * 2 >= denominator {
+      if twice >= denominator.to_int64() {
         if numerator >= 0 {
           q + 1
         } else {
@@ -161,15 +162,14 @@ pub fn round_div(numerator : Int, denominator : Int, mode : RoundMode) -> Int {
       } else {
         q
       }
-    HalfEven => {
-      let twice = abs_r * 2
-      if twice > denominator {
+    HalfEven =>
+      if twice > denominator.to_int64() {
         if numerator >= 0 {
           q + 1
         } else {
           q - 1
         }
-      } else if twice < denominator {
+      } else if twice < denominator.to_int64() {
         q
       } else if q % 2 == 0 {
         q
@@ -178,7 +178,6 @@ pub fn round_div(numerator : Int, denominator : Int, mode : RoundMode) -> Int {
       } else {
         q - 1
       }
-    }
   }
 }
 

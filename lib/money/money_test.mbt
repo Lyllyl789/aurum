@@ -50,6 +50,13 @@ test "round_div half even" {
 }
 
 ///|
+test "round_div does not overflow when comparing large remainders" {
+  assert_eq(round_div(1073741824, 2147483647, round_half_up()), 1)
+  assert_eq(round_div(-1073741824, 2147483647, round_half_up()), -1)
+  assert_eq(round_div(1073741824, 2147483647, round_half_even()), 1)
+}
+
+///|
 test "round to yuan / jiao / fen" {
   let m = Money::of(12345, "CNY")
   assert_eq(m.round_to(0, round_half_up()), Money::of(12300, "CNY"))

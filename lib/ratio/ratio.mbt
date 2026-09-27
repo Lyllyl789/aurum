@@ -2,7 +2,7 @@
 // Licensed under Apache-2.0
 //
 // 财务比率：流动性、偿债能力、盈利能力、营运能力与估值指标。
-// 所有指标以 Double 计算，分母为零或结果非有限时返回 None。
+// 所有指标以 Double 计算，输入非有限、分母为零或结果非有限时返回 None。
 
 ///|
 /// 有限性检查。
@@ -11,9 +11,9 @@ fn finite(x : Double) -> Bool {
 }
 
 ///|
-/// 计算比值，分母为零或结果非有限时返回 None。
+/// 计算比值，输入非有限、分母为零或结果非有限时返回 None。
 fn ratio(numerator : Double, denominator : Double) -> Double? {
-  if denominator == 0.0 {
+  if !finite(numerator) || !finite(denominator) || denominator == 0.0 {
     return None
   }
   let value = numerator / denominator

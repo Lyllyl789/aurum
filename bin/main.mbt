@@ -106,7 +106,32 @@ fn main {
   println("【多币种换算】")
   let cny = @money.Money::of(10000, "CNY")
   match @currency.convert(cny, "USD", 0.14) {
-    Some(usd) => println("  100.00 元按 0.14 汇率换算 = " + usd.format())
+    Some(usd) => {
+      println(
+        "  100.00 CNY 按调用方汇率 0.14 换算 = " + usd.format() + " USD",
+      )
+      let principal = usd.minor().to_double() / 100.0
+      match @amortize.equal_installment_payment(principal, 0.05, 1) {
+        Some(payment) => {
+          let rounded = @money.Money::of(
+            (payment * 100.0 + 0.5).to_int(),
+            "USD",
+          )
+          println(
+            "  以 14.00 USD 为本金，单期利率 5%：应还约 " +
+            rounded.format() +
+            " USD（按美分四舍五入，本金 14.00 + 利息 0.70）",
+          )
+        }
+        None => println("  单期贷款无法计算")
+      }
+    }
     None => println("  换算失败")
+  }
+  if @currency.convert(cny, "USD", 0.0) == None {
+    println("  零汇率：换算返回 None")
+  }
+  if @capital.payback_period([-100.0, 20.0, 30.0]) == None {
+    println("  现金流在给定期限内未回收：回收期返回 None")
   }
 }

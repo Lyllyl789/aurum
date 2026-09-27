@@ -68,7 +68,7 @@ pub fn equal_installment_schedule(
     let interest = balance * rate
     let principal_part = payment - interest
     balance = balance - principal_part
-    if !finite(balance) {
+    if !finite(interest) || !finite(principal_part) || !finite(balance) {
       return None
     }
     result[i] = { period: i + 1, principal: principal_part, interest, balance, }
@@ -88,6 +88,9 @@ pub fn equal_principal_schedule(
     return None
   }
   let principal_part = principal / periods.to_double()
+  if !finite(principal_part) {
+    return None
+  }
   let default = { period: 0, principal: 0.0, interest: 0.0, balance: 0.0, }
   let result = Array::make(periods, default)
   let mut balance = principal
@@ -95,7 +98,7 @@ pub fn equal_principal_schedule(
   while i < periods {
     let interest = balance * rate
     balance = balance - principal_part
-    if !finite(balance) {
+    if !finite(interest) || !finite(balance) {
       return None
     }
     result[i] = { period: i + 1, principal: principal_part, interest, balance, }
@@ -134,7 +137,7 @@ pub fn total_interest_equal_principal(
   if !finite(principal) || !finite(rate) || rate <= -1.0 || periods <= 0 {
     return None
   }
-  let value = principal * rate * (periods + 1).to_double() / 2.0
+  let value = principal * rate * (periods.to_double() + 1.0) / 2.0
   if finite(value) {
     Some(value)
   } else {

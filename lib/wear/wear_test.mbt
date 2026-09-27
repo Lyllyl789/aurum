@@ -95,3 +95,28 @@ test "invalid inputs return None" {
     units_of_production_depreciation(10000.0, 1000.0, 0.0, 2000.0) == None,
   )
 }
+
+///|
+test "sum of years denominator does not overflow Int" {
+  assert_true(
+    approx(
+      sum_of_years_digits_depreciation(100000.0, 0.0, 100000, 1),
+      1.999980000199998,
+      1.0e-9,
+    ),
+  )
+}
+
+///|
+test "business ranges remain caller policy" {
+  assert_true(
+    approx(straight_line_depreciation(100.0, 120.0, 2), -10.0, 1.0e-9),
+  )
+  assert_true(
+    approx(
+      units_of_production_depreciation(100.0, 0.0, 10.0, 12.0),
+      120.0,
+      1.0e-9,
+    ),
+  )
+}

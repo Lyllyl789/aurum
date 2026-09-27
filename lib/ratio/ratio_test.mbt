@@ -47,3 +47,11 @@ test "zero denominator returns None" {
   assert_true(price_earnings_ratio(50.0, 0.0) == None)
   assert_true(earnings_per_share(100.0, 0.0) == None)
 }
+
+///|
+test "non finite operands return None" {
+  assert_true(current_ratio(1000.0, @double.infinity) == None)
+  assert_true(current_ratio(@double.not_a_number, 500.0) == None)
+  assert_true(quick_ratio(@double.infinity, 100.0, 500.0) == None)
+  assert_true(earnings_per_share(100.0, @double.infinity) == None)
+}

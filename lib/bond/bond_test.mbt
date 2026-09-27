@@ -68,3 +68,12 @@ test "invalid inputs return None" {
   assert_true(macaulay_duration(0.0, 1000.0, 0.05, 0) == None)
   assert_true(convexity(0.0, 1000.0, @double.not_a_number, 10) == None)
 }
+
+///|
+test "bond rate and zero price boundaries" {
+  assert_true(price(50.0, 1000.0, -1.0, 10) == None)
+  assert_true(price(@double.infinity, 1000.0, 0.05, 10) == None)
+  assert_true(yield_to_maturity(0.0, 0.0, 1000.0, 10) == None)
+  assert_true(macaulay_duration(0.0, 0.0, 0.05, 10) == None)
+  assert_true(convexity(0.0, 0.0, 0.05, 10) == None)
+}

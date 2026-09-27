@@ -82,9 +82,9 @@ pub fn sum_of_years_digits_depreciation(
   if !finite(cost) || !finite(salvage) || life <= 0 || year < 1 || year > life {
     return None
   }
-  let denominator = life * (life + 1) / 2
+  let denominator = life.to_double() * (life.to_double() + 1.0) / 2.0
   let remaining = life - year + 1
-  let value = (cost - salvage) * remaining.to_double() / denominator.to_double()
+  let value = (cost - salvage) * remaining.to_double() / denominator
   if finite(value) {
     Some(value)
   } else {

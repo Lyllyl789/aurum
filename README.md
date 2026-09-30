@@ -88,7 +88,7 @@ let schedule = equal_installment_money_schedule(
 
 需要将外部十进制文本读入金额时，`Money::parse(text, currency)` 接受 ASCII 数字和 `.`，不接受空白、千分位或指数写法；超过币种精度的非零小数位返回 `None`，多出的零不改变金额。`Money::parse_rounded` 显式接受舍入模式。`Money::try_of` 是 `Money::of` 的非中止版本。`scale_ratio(numerator, denominator, mode)` 使用整数最小单位做比例计算，分母须为正，溢出返回 `None`。
 
-`to_decimal_string()` 输出适合持久化和重新解析的固定精度、无千分位文本；`format()` 仍用于带千分位的展示。`try_add`、`try_sub`、`try_neg`、`abs`、`try_scale`、`try_compare` 和 `Money::sum` 提供可恢复的 `Option` 失败路径；金额/币种不匹配或最小单位溢出时返回 `None`。`to_major_double()` 与 `ratio_to()` 是方便估算的浮点桥接，不再保持整数金额的精确性。
+`to_decimal_string()` 输出适合持久化和重新解析的固定精度、无千分位文本；`format()` 仍用于带千分位的展示。`try_add`、`try_sub`、`try_compare` 与 `Money::sum` 在币种不一致或计算溢出时返回 `None`；单金额的 `try_scale`、`try_neg` 在结果超出 32 位最小单位范围时返回 `None`。`to_major_double()` 与 `ratio_to()` 是方便估算的浮点桥接，不再保持整数金额的精确性。
 
 `allocate_equal(parts)` 等额分摊，余数最小单位按顺序分给前面的份额；`allocate_by_weights(weights)` 使用最大余数法按非负整数权重分摊，余数并列时先给输入顺序靠前的份额。两种分摊都返回可加回原金额的精确金额数组；份数/权重无效时返回 `None`。
 

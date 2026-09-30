@@ -37,3 +37,30 @@ test "CNY conversion funds a one period USD loan" {
   assert_true(@currency.convert(cny, "USD", 0.0) == None)
   assert_true(@amortize.equal_installment_payment(principal, -1.0, 1) == None)
 }
+
+///|
+test "review acceptance examples for core calculations" {
+  let cents = @money.Money::of(10, "CNY").add(@money.Money::of(20, "CNY"))
+  assert_eq(cents.minor(), 30)
+  assert_eq(cents.format(), "0.30")
+
+  match @tvm.future_value(1000.0, 0.05, 2) {
+    Some(value) => assert_true((value - 1102.5).abs() < 1.0e-9)
+    None => fail("expected finite future value")
+  }
+  match @capital.net_present_value(0.10, [-1000.0, 300.0, 400.0, 500.0]) {
+    Some(value) => assert_true((value - -21.0368145).abs() < 1.0e-6)
+    None => fail("expected finite NPV")
+  }
+  match @capital.internal_rate_of_return([-100.0, 110.0]) {
+    Some(value) => assert_true((value - 0.1).abs() < 1.0e-9)
+    None => fail("expected IRR for a single sign change")
+  }
+  match @amortize.equal_installment_payment(10000.0, 0.01, 12) {
+    Some(value) => assert_true((value - 888.4878869).abs() < 1.0e-6)
+    None => fail("expected finite installment payment")
+  }
+  assert_true(
+    @capital.net_present_value(0.1, [-100.0, @double.infinity]) == None,
+  )
+}

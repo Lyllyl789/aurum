@@ -2,4 +2,7 @@ import {
   "aurum/lib/money",
   "aurum/lib/currency",
   "aurum/lib/amortize",
+  "aurum/lib/tvm",
+  "aurum/lib/capital",
+  "moonbitlang/core/double",
 }

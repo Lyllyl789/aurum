@@ -56,3 +56,13 @@
 - 跨模块测试 `moon test lib/integration` 1/1 通过；
 - 全量单元测试 `moon test` 达到 70/70 全量通过；
 - `moon run bin` 正常执行，无任何异常。
+
+## 2026-09-30：根据初审驳回意见补充对标与验收
+
+**评审意见**：项目跨度偏大，建议参考成熟语言库或选择对标工具，并补充功能对比与验收说明。
+
+**本轮 AI 辅助工作**：将 README 项目定位调整为 MoonBit 基础金融计算库，区分核心验收能力与有限公式示例；新增 `notes/comparison-and-acceptance.md`，依据 NumPy Financial、Python `decimal` 和 QuantLib 的公开文档整理功能矩阵、差异、非目标和固定验收样例；新增一条集成验收测试；在本清单中标明本轮新增内容仍需项目负责人核对。申报书对应增加范围/对标/验收说明，避免只在仓库回应评审意见。
+
+**验证结果**：`moon fmt --check`、`moon check`、`moon test`（71/71）、`moon run bin`、`git diff --check` 均退出码 0。新增验收用例首次编译时发现 integration 包未导入 `tvm`、`capital` 和 `double`；补充 `moon.pkg` 导入后全量检查通过。
+
+**推送状态**：尚未推送。当前 GitHub CLI 活动账号不是仓库所有者 `Lyllyl789`；在获得该账号的有效推送认证前，不使用其他账号推送。

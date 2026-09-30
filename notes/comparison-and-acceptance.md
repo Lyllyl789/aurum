@@ -17,12 +17,12 @@ Aurum 是 MoonBit 中的基础金融计算库原型。项目核心验收重点�
 | 能力 | NumPy Financial（Python） | Python `decimal` | QuantLib | Aurum（MoonBit） |
 | --- | --- | --- | --- | --- |
 | 常见 TVM / 现金流 | 提供 `fv`、`pv`、`pmt`、`npv`、`irr` 等周期函数；NPV 文档规定首项现金流位于 `t=0` | 十进制数值类型，不提供这些领域函数 | 可用于广泛的定量金融建模 | 提供有限期 TVM、NPV（含逐期现值分解）、IRR、名义/有效年利率换算；现金流等间隔，NPV 首项为 `t=0` |
-| 金额表示 | 金融函数返回浮点数，不提供带币种小数位规则的 Money 类型 | 支持十进制算术及上下文精度/舍入 | 提供金融建模组件；此项目不对其金额模型作等价性声明 | `Money` 用 32 位 `Int` 保存最小单位；有严格文本解析、整数比例运算和等额/最大余数权重分摊；范围有限，溢出按契约返回 `None` 或中止 |
+| 金额表示 | 提供周期金融函数，但不提供与 Aurum 相同的、带币种和币种精度规则的 Money 类型；具体数值类型按各 API 文档描述（部分函数支持 Decimal 等输入） | 支持十进制算术及上下文精度/舍入 | 提供金融建模组件；此项目不对其金额模型作等价性声明 | `Money` 用 32 位 `Int` 保存最小单位；有严格文本解析、整数比例运算和等额/最大余数权重分摊；范围有限，溢出按契约返回 `None` 或中止 |
 | 贷款计算 | 提供付款、本金和利息分量等公式函数 | 不提供贷款领域公式 | 可表达更广泛的金融工具和现金流模型 | 提供浮点公式计划及分位舍入计划；末期余额对账，不处理日期、费用或合同条款 |
 | 债券估值 | 不作为本项目的债券市场对标 | 不提供债券领域公式 | 定位为覆盖建模、交易与风险管理的定量金融库 | 仅支持规则周期的简化票息/收益率/久期/凸性计算，不含市场日历、日计数和曲线 |
 | 本项目定位 | 参考其基础周期公式和接口范围 | 参考其十进制语义边界 | 参考其完整金融平台的功能边界；不宣称功能等价 | 面向 MoonBit 的小型基础计算实现和可检查的错误契约 |
 
-来源： [NumPy Financial 函数索引](https://numpy.org/numpy-financial/latest/genindex.html)、[NumPy Financial `fv`](https://numpy.org/numpy-financial/latest/fv.html)、[NumPy Financial `npv`](https://numpy.org/numpy-financial/latest/npv.html)、[Python `decimal`](https://docs.python.org/3/library/decimal.html)、[QuantLib 项目介绍](https://www.quantlib.org/index.shtml)、[QuantLib 官方文档入口](https://www.quantlib.org/docs.shtml)。
+来源： [NumPy Financial 函数索引](https://numpy.org/numpy-financial/latest/genindex.html)、[NumPy Financial `fv`](https://numpy.org/numpy-financial/latest/fv.html)、[NumPy Financial `npv`](https://numpy.org/numpy-financial/latest/_api_stubs/numpy_financial.npv.html)、[Python `decimal`](https://docs.python.org/3/library/decimal.html)、[QuantLib 项目介绍](https://www.quantlib.org/index.shtml)、[QuantLib 官方文档入口](https://www.quantlib.org/docs.shtml)。
 
 ## 可复现验收
 

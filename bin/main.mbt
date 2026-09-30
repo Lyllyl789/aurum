@@ -26,6 +26,14 @@ fn main {
       )
     None => println("  年金现值无法计算")
   }
+  match @tvm.effective_annual_rate(0.12, 12) {
+    Some(value) =>
+      println(
+        "  名义年利率 12%、每年复利 12 次的有效年利率 = " +
+        value.to_string(),
+      )
+    None => println("  有效年利率无法计算")
+  }
 
   // 资本预算
   println("【资本预算】")
@@ -104,25 +112,47 @@ fn main {
 
   // 多币种换算
   println("【多币种换算】")
-  let cny = @money.Money::of(10000, "CNY")
+  let cny = match @money.Money::parse("100.00", "CNY") {
+    Some(value) => value
+    None => abort("demo amount must parse")
+  }
+  match cny.allocate_by_weights([1, 2, 3]) {
+    Some(shares) =>
+      println(
+        "  100.00 CNY 按 1:2:3 分摊 = " +
+        shares[0].format() +
+        " / " +
+        shares[1].format() +
+        " / " +
+        shares[2].format(),
+      )
+    None => println("  金额分摊失败")
+  }
   match @currency.convert(cny, "USD", 0.14) {
     Some(usd) => {
       println(
         "  100.00 CNY 按调用方汇率 0.14 换算 = " + usd.format() + " USD",
       )
-      let principal = usd.minor().to_double() / 100.0
-      match @amortize.equal_installment_payment(principal, 0.05, 1) {
-        Some(payment) => {
-          let rounded = @money.Money::of(
-            (payment * 100.0 + 0.5).to_int(),
-            "USD",
-          )
-          println(
-            "  以 14.00 USD 为本金，单期利率 5%：应还约 " +
-            rounded.format() +
-            " USD（按美分四舍五入，本金 14.00 + 利息 0.70）",
-          )
-        }
+      match
+        @amortize.equal_installment_money_schedule(
+          usd,
+          0.05,
+          1,
+          @money.round_half_up(),
+        ) {
+        Some(rows) =>
+          match @amortize.summarize_money_schedule(rows) {
+            Some(summary) =>
+              println(
+                "  以 " +
+                usd.format() +
+                " USD 为本金，单期利率 5%：按分舍入还款 " +
+                summary.payments.format() +
+                " USD；期末余额 " +
+                summary.ending_balance.format(),
+              )
+            None => println("  还款计划对账失败")
+          }
         None => println("  单期贷款无法计算")
       }
     }

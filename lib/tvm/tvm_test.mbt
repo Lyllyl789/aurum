@@ -91,3 +91,38 @@ test "non-finite inputs and outputs return None" {
   assert_true(future_value_annuity(1.0e308, 1.0, 1024) == None)
   assert_true(present_value_perpetuity(1.0e308, 1.0e-308) == None)
 }
+
+///|
+test "nominal and effective annual rate conversions round trip" {
+  assert_true(
+    approx(effective_annual_rate(0.12, 12), 0.12682503013196977, 1.0e-12),
+  )
+  assert_true(
+    approx(
+      nominal_annual_rate_from_effective(0.12682503013196977, 12),
+      0.12,
+      1.0e-12,
+    ),
+  )
+  assert_true(approx(effective_annual_rate(0.05, 1), 0.05, 1.0e-12))
+  assert_true(
+    approx(nominal_annual_rate_from_effective(-0.19, 2), -0.2, 1.0e-12),
+  )
+  assert_true(approx(effective_annual_rate(1.0e-15, 12), 1.0e-15, 1.0e-27))
+  assert_true(
+    approx(nominal_annual_rate_from_effective(1.0e-15, 12), 1.0e-15, 1.0e-27),
+  )
+}
+
+///|
+test "annual rate conversions reject invalid parameters and overflow" {
+  assert_true(effective_annual_rate(0.1, 0) == None)
+  assert_true(effective_annual_rate(-12.0, 12) == None)
+  assert_true(effective_annual_rate(@double.infinity, 12) == None)
+  assert_true(nominal_annual_rate_from_effective(-1.0, 12) == None)
+  assert_true(nominal_annual_rate_from_effective(0.1, -1) == None)
+  assert_true(
+    nominal_annual_rate_from_effective(@double.not_a_number, 12) == None,
+  )
+  assert_true(effective_annual_rate(1.0e308, 12) == None)
+}

@@ -28,6 +28,15 @@ fn valid_rate(rate : Double) -> Bool {
 }
 
 ///|
+/// One row of a discounted cash-flow breakdown. Period zero is the initial
+/// cash flow and is not discounted.
+pub struct DiscountedCashFlow {
+  period : Int
+  cashflow : Double
+  present_value : Double
+} derive(Debug, Eq)
+
+///|
 /// NPV = Σ CF_t / (1+r)^t. None for empty/non-finite cash flows,
 /// an invalid rate, or a non-finite intermediate sum.
 pub fn net_present_value(rate : Double, cashflows : Array[Double]) -> Double? {
@@ -49,6 +58,32 @@ pub fn net_present_value(rate : Double, cashflows : Array[Double]) -> Double? {
     t = t + 1
   }
   Some(total)
+}
+
+///|
+/// Returns the period-by-period present-value terms used by NPV. This is an
+/// auditable breakdown for reports; use `net_present_value` when only the
+/// aggregate is needed and avoiding an allocated array matters.
+pub fn discounted_cash_flow_schedule(
+  rate : Double,
+  cashflows : Array[Double],
+) -> Array[DiscountedCashFlow]? {
+  if !valid_rate(rate) || !valid_cashflows(cashflows) {
+    return None
+  }
+  let placeholder = { period: 0, cashflow: 0.0, present_value: 0.0, }
+  let rows = Array::make(cashflows.length(), placeholder)
+  let mut period = 0
+  while period < cashflows.length() {
+    let present_value = match
+      @tvm.present_value(cashflows[period], rate, period) {
+      Some(value) => value
+      None => return None
+    }
+    rows[period] = { period, cashflow: cashflows[period], present_value, }
+    period = period + 1
+  }
+  Some(rows)
 }
 
 ///|

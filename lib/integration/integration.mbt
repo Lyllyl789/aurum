@@ -64,3 +64,42 @@ test "review acceptance examples for core calculations" {
     @capital.net_present_value(0.1, [-100.0, @double.infinity]) == None,
   )
 }
+
+///|
+test "parsed money, exact weighted split, and rounded loan plan compose" {
+  let source = match @money.Money::parse("100.00", "CNY") {
+    Some(value) => value
+    None => fail("expected exact decimal parse")
+  }
+  let shares = match source.allocate_by_weights([1, 2, 3]) {
+    Some(value) => value
+    None => fail("expected weighted allocation")
+  }
+  assert_eq(shares[0].minor(), 1667)
+  assert_eq(shares[1].minor(), 3333)
+  assert_eq(shares[2].minor(), 5000)
+  assert_eq(
+    shares[0].minor() + shares[1].minor() + shares[2].minor(),
+    source.minor(),
+  )
+
+  let loan = @money.Money::of(1000000, "CNY")
+  let rows = match
+    @amortize.equal_installment_money_schedule(
+      loan,
+      0.01,
+      12,
+      @money.round_half_up(),
+    ) {
+    Some(value) => value
+    None => fail("expected cent-rounded loan plan")
+  }
+  let summary = match @amortize.summarize_money_schedule(rows) {
+    Some(value) => value
+    None => fail("expected reconciled loan summary")
+  }
+  assert_eq(summary.principal, loan)
+  assert_eq(summary.periods, 12)
+  assert_eq(summary.ending_balance, @money.Money::zero("CNY"))
+  assert_true(summary.interest.minor() > 0)
+}

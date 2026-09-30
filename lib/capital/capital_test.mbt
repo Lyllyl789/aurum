@@ -18,6 +18,31 @@ test "net present value" {
 }
 
 ///|
+test "discounted cash-flow schedule reconciles to NPV" {
+  let cashflows = [-1000.0, 300.0, 400.0, 500.0]
+  match discounted_cash_flow_schedule(0.10, cashflows) {
+    Some(rows) => {
+      assert_eq(rows.length(), cashflows.length())
+      assert_eq(rows[0].period, 0)
+      assert_eq(rows[0].cashflow, -1000.0)
+      assert_eq(rows[0].present_value, -1000.0)
+      let mut total = 0.0
+      let mut i = 0
+      while i < rows.length() {
+        assert_eq(rows[i].period, i)
+        assert_eq(rows[i].cashflow, cashflows[i])
+        total = total + rows[i].present_value
+        i = i + 1
+      }
+      assert_true(approx(net_present_value(0.10, cashflows), total, 1.0e-12))
+    }
+    None => fail("expected discounted-flow breakdown")
+  }
+  assert_true(discounted_cash_flow_schedule(0.10, []) == None)
+  assert_true(discounted_cash_flow_schedule(-1.0, cashflows) == None)
+}
+
+///|
 test "internal rate of return zeroes npv" {
   let cf = [-1000.0, 300.0, 400.0, 500.0]
   match internal_rate_of_return(cf) {

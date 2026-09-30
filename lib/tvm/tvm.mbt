@@ -24,6 +24,41 @@ fn checked(value : Double) -> Double? {
 }
 
 ///|
+/// Converts a nominal annual rate to an effective annual rate when interest
+/// is compounded `periods_per_year` times per year. Rates are decimals, not
+/// percentages. Returns None for invalid or non-finite inputs/results.
+pub fn effective_annual_rate(
+  nominal_annual_rate : Double,
+  periods_per_year : Int,
+) -> Double? {
+  if !finite(nominal_annual_rate) || periods_per_year <= 0 {
+    return None
+  }
+  let periodic_rate = nominal_annual_rate / periods_per_year.to_double()
+  if periodic_rate <= -1.0 {
+    return None
+  }
+  checked(
+    @math.expm1(periods_per_year.to_double() * @math.ln_1p(periodic_rate)),
+  )
+}
+
+///|
+/// Converts an effective annual rate to the equivalent nominal annual rate
+/// compounded `periods_per_year` times. Rates are decimals, not percentages.
+pub fn nominal_annual_rate_from_effective(
+  effective_rate : Double,
+  periods_per_year : Int,
+) -> Double? {
+  if !finite(effective_rate) || effective_rate <= -1.0 || periods_per_year <= 0 {
+    return None
+  }
+  let exponent = @math.ln_1p(effective_rate) / periods_per_year.to_double()
+  let periodic_rate = @math.expm1(exponent)
+  checked(periodic_rate * periods_per_year.to_double())
+}
+
+///|
 /// FV = PV × (1+r)^n. None for non-finite values, r <= -1, or n < 0.
 pub fn future_value(pv : Double, rate : Double, periods : Int) -> Double? {
   if !valid_term(pv, rate, periods) {

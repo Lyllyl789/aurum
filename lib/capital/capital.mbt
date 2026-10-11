@@ -28,6 +28,30 @@ fn valid_rate(rate : Double) -> Bool {
 }
 
 ///|
+/// Adds one finite term with Neumaier compensation. Returns None if either
+/// accumulator becomes non-finite.
+fn compensated_add(
+  sum : Double,
+  correction : Double,
+  value : Double,
+) -> (Double, Double)? {
+  let next = sum + value
+  if !finite(next) {
+    return None
+  }
+  let adjustment = if sum.abs() >= value.abs() {
+    sum - next + value
+  } else {
+    value - next + sum
+  }
+  let next_correction = correction + adjustment
+  if !finite(next_correction) {
+    return None
+  }
+  Some((next, next_correction))
+}
+
+///|
 /// One row of a discounted cash-flow breakdown. Period zero is the initial
 /// cash flow and is not discounted.
 pub struct DiscountedCashFlow {
@@ -37,33 +61,45 @@ pub struct DiscountedCashFlow {
 } derive(Debug, Eq)
 
 ///|
-/// NPV = Σ CF_t / (1+r)^t. None for empty/non-finite cash flows,
-/// an invalid rate, or a non-finite intermediate sum.
+/// NPV = Σ CF_t / (1+r)^t. Neumaier compensation reduces loss of small terms
+/// when discounted cash flows of different magnitudes cancel. None for
+/// empty/non-finite cash flows, an invalid rate, or a non-finite sum.
 pub fn net_present_value(rate : Double, cashflows : Array[Double]) -> Double? {
   if !valid_rate(rate) || !valid_cashflows(cashflows) {
     return None
   }
   let mut total = 0.0
+  let mut correction = 0.0
   let mut t = 0
   while t < cashflows.length() {
     match @tvm.present_value(cashflows[t], rate, t) {
-      Some(value) => {
-        total = total + value
-        if !finite(total) {
-          return None
+      Some(value) =>
+        match compensated_add(total, correction, value) {
+          Some((next_total, next_correction)) => {
+            total = next_total
+            correction = next_correction
+          }
+          None => return None
         }
-      }
       None => return None
     }
     t = t + 1
   }
-  Some(total)
+  let result = total + correction
+  if finite(result) {
+    Some(result)
+  } else {
+    None
+  }
 }
 
 ///|
 /// Returns the period-by-period present-value terms used by NPV. This is an
-/// auditable breakdown for reports; use `net_present_value` when only the
-/// aggregate is needed and avoiding an allocated array matters.
+/// auditable breakdown for reports; NPV applies compensated summation when
+/// combining these terms. A caller summing the rows naively may see a small
+/// rounding difference when large positive and negative terms cancel. Use
+/// `net_present_value` when only the aggregate is needed and avoiding an
+/// allocated array matters.
 pub fn discounted_cash_flow_schedule(
   rate : Double,
   cashflows : Array[Double],

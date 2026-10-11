@@ -51,6 +51,14 @@ fn main {
     Some(value) => println("  唯一 IRR = " + value.to_string())
     None => println("  唯一 IRR 无法确定")
   }
+  match @capital.net_present_value(0.0, [1.0e16, 1.0, -1.0e16]) {
+    Some(value) =>
+      println(
+        "  大小相差 16 个数量级的抵消现金流，NPV = " +
+        value.to_string(),
+      )
+    None => println("  抵消现金流 NPV 无法计算")
+  }
 
   // 贷款摊销
   println("【贷款摊销】")

@@ -18,6 +18,16 @@ test "net present value" {
 }
 
 ///|
+test "net present value preserves small terms during large-flow cancellation" {
+  // At a zero discount rate, these flows sum to 1. A naive left-to-right
+  // Double sum loses the middle term when adding it to 1e16.
+  match net_present_value(0.0, [1.0e16, 1.0, -1.0e16]) {
+    Some(value) => assert_eq(value, 1.0)
+    None => fail("expected a finite NPV")
+  }
+}
+
+///|
 test "discounted cash-flow schedule reconciles to NPV" {
   let cashflows = [-1000.0, 300.0, 400.0, 500.0]
   match discounted_cash_flow_schedule(0.10, cashflows) {

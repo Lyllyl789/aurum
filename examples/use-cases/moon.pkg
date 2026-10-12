@@ -1,0 +1,7 @@
+import {
+  "aurum/lib/money",
+  "aurum/lib/capital",
+  "aurum/lib/amortize",
+}
+
+pkgtype(kind: "executable")

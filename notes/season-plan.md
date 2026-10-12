@@ -33,7 +33,7 @@ Aurum 是一个用 MoonBit 编写的基础金融计算库。本文记录当前�
 
 ## 验证
 
-当前版本的 GitHub Actions 格式、类型、全量测试、CLI、场景和 README 示例步骤均通过：[检查记录](https://github.com/Lyllyl789/aurum/actions/runs/38250264099)。测试总数包含九月已有测试；十月新增的金融单元回归为 NPV 抵消用例一项，场景示例中的断言不计作单元测试。
+当前版本的 GitHub Actions 格式、类型、全量测试、CLI、场景和 README 示例步骤均通过：[检查记录](https://github.com/Lyllyl789/aurum/actions/runs/38266039807)。测试总数包含九月已有测试；十月新增的金融单元回归为 NPV 抵消用例一项，场景示例中的断言不计作单元测试。
 
 NPV 仍以 `Double` 计算。补偿求和能改善部分浮点累加误差，但不提供任意精度，也不保证适用于未经业务复核的资金结算。
 
@@ -41,5 +41,5 @@ NPV 仍以 `Double` 计算。补偿求和能改善部分浮点累加误差，但
 
 - [三个固定输入场景](use-cases.md)
 - [功能范围与回归样例](comparison-and-acceptance.md)
-- [AI 辅助说明与人工复核清单](ai-review.md)
+- [AI 辅助与人工决策说明](ai-assistance.md)
 - GitHub：[Lyllyl789/aurum](https://github.com/Lyllyl789/aurum)

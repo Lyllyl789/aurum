@@ -39,7 +39,7 @@ test "CNY conversion funds a one period USD loan" {
 }
 
 ///|
-test "review acceptance examples for core calculations" {
+test "core calculation integration examples" {
   let cents = @money.Money::of(10, "CNY").add(@money.Money::of(20, "CNY"))
   assert_eq(cents.minor(), 30)
   assert_eq(cents.format(), "0.30")

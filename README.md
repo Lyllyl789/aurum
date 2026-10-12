@@ -213,32 +213,32 @@ NPV 估算 = -21.03681442524436
 
 ### 从另一个本地 MoonBit 模块导入
 
-复现采用公开 Git 源码，不假定 `aurum@0.1.0` 已在 Mooncakes 发布。准备一个新目录 `review-workspace`，将本仓库克隆为其子目录 `aurum`，并创建以下文件布局：
+复现采用公开 Git 源码，不假定 `aurum@0.1.0` 已在 Mooncakes 发布。准备一个新目录 `consumer-workspace`，将本仓库克隆为其子目录 `aurum`，并创建以下文件布局：
 
 ```text
-review-workspace/
+consumer-workspace/
 ├── moon.work
 ├── aurum/                 # git clone 得到的本仓库
-└── review-app/
+└── consumer-app/
     ├── moon.mod
     └── main/
         ├── moon.pkg
         └── main.mbt
 ```
 
-`review-workspace/moon.work`：
+`consumer-workspace/moon.work`：
 
 ```moonbit
 members = [
   "aurum",
-  "review-app",
+  "consumer-app",
 ]
 ```
 
-`review-app/moon.mod`：
+`consumer-app/moon.mod`：
 
 ```moonbit
-name = "review-app"
+name = "consumer-app"
 
 version = "0.1.0"
 
@@ -247,12 +247,12 @@ import {
 }
 ```
 
-将上文 `moon.pkg` 和完整 `main.mbt` 分别保存到 `review-app/main/`。在 `review-workspace` 目录执行：
+将上文 `moon.pkg` 和完整 `main.mbt` 分别保存到 `consumer-app/main/`。在 `consumer-workspace` 目录执行：
 
 ```sh
-moon -C review-app fmt --check
-moon -C review-app check
-moon -C review-app run main
+moon -C consumer-app fmt --check
+moon -C consumer-app check
+moon -C consumer-app run main
 ```
 
 结果应与仓库内示例一致。[MoonBit 本地工作区规则](https://docs.moonbitlang.com/en/latest/toolchain/moon/module.html#dependency-management)使 `aurum` 从 `moon.work` 的本地成员解析；`0.1.0` 对照本仓库元数据填写，不是已发布版本的证明。缺少工作区配置会导致依赖无法按这个流程解析；仅复制 `.mbt` 或仅在包文件中写 `import` 不能替代模块依赖声明。
@@ -323,7 +323,7 @@ TVM 使用 IEEE-754 `Double` 复利计算，适合估算，不保证分级精度
 ## 设计、验证与贡献记录
 
 - **设计规范**：[设计笔记](notes/design.md) 详细记录了各模块实现边界与数值精度策略。
-- **AI 辅助说明**：[AI 使用范围](notes/ai-review.md) 记录实际 AI 参与范围和当前人工确认状态。
+- **AI 辅助说明**：[AI 辅助与人工决策](notes/ai-assistance.md) 说明实际 AI 参与范围及项目负责人的决策责任。
 - **开发记录**：[功能变化与验证记录](notes/development-log.md) 按阶段概述项目改动、AI 辅助范围和可复现检查。
 - **功能对照与回归验证**：[功能对照与回归验证](notes/comparison-and-acceptance.md) 记录了项目功能范围、成熟工具功能矩阵对照、差异说明和固定可复现回归值。
 

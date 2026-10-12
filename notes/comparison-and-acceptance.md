@@ -12,6 +12,8 @@ Aurum 是 MoonBit 中的基础金融计算库原型。项目核心验收重点�
 
 ## 成熟工具对照
 
+MoonBit 生态内的相邻包与具体能力交集另见 [MoonBit 生态定位与边界核对](moonbit-ecosystem.md)（2026-10-12）。其中记录已发布包版本、文档/API 来源及核验限制；以下跨语言对照不能用于推导 MoonBit 生态缺少相关实现。
+
 对照依据是各项目公开文档中的功能范围和接口约定。该表用于界定项目位置，不代表本项目已运行其他语言实现进行性能或逐值基准测试。
 
 | 能力 | NumPy Financial（Python） | Python `decimal` | QuantLib | Aurum（MoonBit） |

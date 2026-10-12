@@ -119,3 +119,13 @@
 **修复与验证**：示例首次编译发现 `Money::sum` 缺少显式币种参数，补为 `Money::sum(shares, "CNY")` 后 `moon check` 通过。`moon run examples/use-cases` 复现三项固定流程：分摊合计 `100.00 CNY`；常规 NPV 约 `-21.03681442524436`、抵消压力样例为 `1`；两份贷款计划本金汇总均为 `10000.00 CNY` 且余额为零，基准总利息 `661.86`、额外还本计划总利息 `650.29 CNY`。四项拒绝输入演示均为 `true`。
 
 **真实检查结果**：定向 `moon test lib/money lib/capital lib/amortize lib/integration` 为 61/61；全量 `moon test` 为 93/93，均退出码 0。`moon fmt --check`、`moon check`、既有 `moon run bin` 与 `git diff --check` 通过。本次未新增金融算法或单元测试，不把累计测试数记为十月新增成果。运行结果不替代维护者业务复核或赛事验收。
+
+### 2026-10-12 初审整改第 3 项：MoonBit 生态定位与边界
+
+**范围与起点**：只处理生态相邻能力、定位与边界描述。开始时工作区干净，`main` 与最新 `origin/main` 均为 `a12307c`；origin 为 `Lyllyl789/aurum`，`gh api user --jq .login` 与仓库 owner 均为 `Lyllyl789`，Git 提交身份与仓库已有该账号提交一致。没有覆盖已有用户改动。
+
+**AI 辅助工作**：新增 `notes/moonbit-ecosystem.md`，按 Mooncakes 模块目录、限定关键词搜索、已发布 README/API 核对十进制、有理数/大整数、固定收益、整数贷款、会计报表、蒙特卡洛和 OFX 导入的相邻能力；记录核对日期、版本、链接及迁移目标查询返回 404 的限制。README 与对标页增加入口；`moon.mod` 将笼统的精确金融工具包描述改为最小单位金额、周期现金流估算和舍入贷款计划，移除容易暗示会计系统的 `accounting` 标签。没有新增算法、依赖、外部包适配器或金融测试，没有独有性、性能排名或外部项目测试成功的声明，也没有新增人工复核完成记录。
+
+**针对性验证**（本次本地执行，默认 wasm-gc）：`moon test lib/money lib/capital lib/amortize lib/integration` 为 61/61，退出码 0，覆盖金额范围/币种/舍入/守恒、NPV/IRR 边界和贷款逐期对账。`moon fmt --check`、`moon check`、`moon run examples/use-cases`、`moon run bin` 与 `git diff --check` 均退出码 0。场景复现分摊 `16.67 / 33.33 / 50.00`、合计 `100.00 CNY`，常规 NPV `-21.03681442524436`、抵消样例 `1`，基准/额外还本计划本金汇总 `10000.00 CNY`、期末余额零，总利息分别 `661.86 / 650.29 CNY`。本次未重跑全量或多后端测试，不把历史全量结果当作本次执行结果。
+
+**来源核验**：新生态说明中的外部链接逐项检查，除已明确记载的迁移目标 manifest 返回 404 外均为 HTTP 200；相关发布 README/API 数据可读取。外部包未安装、未运行、未独立验证其形式化证明；这些材料与 Aurum 固定演示不替代维护者业务复核或赛事验收。

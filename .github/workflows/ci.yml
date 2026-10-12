@@ -11,10 +11,10 @@ jobs:
     steps:
       - name: Check out sources
         uses: actions/checkout@v4
-      - name: Install MoonBit toolchain
+      - name: Install verified MoonBit toolchain
         shell: bash
         run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s latest
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s -- '0.10.11+6ff76a5f9'
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
       - name: Show toolchain
         run: moon version --all
@@ -26,5 +26,7 @@ jobs:
         run: moon test
       - name: Run CLI demo
         run: moon run bin
+      - name: Run use case scenarios
+        run: moon run examples/use-cases
       - name: Run README example
         run: moon run examples/readme

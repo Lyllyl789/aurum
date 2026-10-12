@@ -12,9 +12,9 @@ Aurum 是一个用 [MoonBit](https://www.moonbitlang.com) 编写的基础金融�
 
 - **九月已有基础**：以 [2026-09-30 的 `8e9cd48`](https://github.com/Lyllyl789/aurum/commit/8e9cd48b95d8102589d87131572ae58406263a92) 为代码比较基线。下列八个模块及金额解析/分摊、名义/有效年利率换算、NPV 逐期明细、按最小单位舍入的贷款计划和摘要对账均已存在，属于项目累计能力。
 - **十月已完成改进**：[`9c62fe2`](https://github.com/Lyllyl789/aurum/commit/9c62fe2363512c61d6108738e8c59b0e0ab3ee3b) 为现有 NPV 合计加入 Neumaier 补偿求和，新增一项抵消现金流回归测试及对应 CLI 演示，并更新说明；这是数值稳定性维护，不是首次实现资本预算模块。
-- **材料整理**：[`7bc018b`](https://github.com/Lyllyl789/aurum/commit/7bc018bd33f05699ce2e7ff418c9a18649437bfd) 及后续定位说明记录维护范围与证据，不能据此宣称新增金融功能。测试总数包含九月既有用例，不全部计为十月新增。
+- **场景与复现**：十月增加三个固定输入的串联示例和完整导入示例，分别展示金额分摊、现金流估算和还款计划；这些是合成样例，不代表真实用户反馈或业务效果。
 
-版本差异、设计场景与验证记录见[十月维护范围与版本证据](notes/season-plan.md)。
+功能边界、版本差异和验证方式见[功能范围与版本记录](notes/season-plan.md)；固定输入的使用示例见[使用场景说明](notes/use-cases.md)。
 
 ## 为什么是 Aurum
 
@@ -66,6 +66,7 @@ curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s -- '0.10.11+6ff
 ```sh
 git clone https://github.com/Lyllyl789/aurum.git
 cd aurum
+git rev-parse HEAD
 moon version --all
 moon fmt --check
 moon check
@@ -91,7 +92,7 @@ moon test lib/money lib/tvm lib/capital lib/amortize lib/integration
 moon test lib/capital
 ```
 
-`moon fmt --check` 只检查格式；需要修改格式时运行 `moon fmt`，然后重新检查。`moon check` 检查类型及包导入；`moon test` 运行全部测试，包含金额精度/溢出、拒绝输入、浮点误差、NPV 抵消回归和跨模块对账。定向核心测试为 68 项，capital 为 10 项，全量为 93 项（累计测试，非十月全部新增）。任一命令非零退出均须处理；这些检查不证明生产适用性或赛事评审通过。
+`moon fmt --check` 只检查格式；需要修改格式时运行 `moon fmt`，然后重新检查。`moon check` 检查类型及包导入；`moon test` 运行全部测试，包含金额精度/溢出、拒绝输入、浮点误差、NPV 抵消回归和跨模块对账。定向核心测试为 68 项，capital 为 10 项，全量为 93 项（累计测试，非十月全部新增）。任一命令非零退出均须处理；这些检查不证明生产适用性或业务口径适合具体用途。
 
 2026-10-12 在 Windows 上实测：`moon 0.1.20260827 (d0aaa07 2026-08-27)`、`moonc v0.10.11+6ff76a5f9 (2026-08-28)`、`moonrun 0.1.20260827`。配置使用 `moon.mod` / `moon.pkg` 文本格式，未测定最低兼容版本；不能识别这些文件的工具链应按上文安装已验证构建。默认 wasm-gc 后端通过上述检查、93 项测试和三个演示，无须额外安装 Node.js 或本地 C 编译器。
 
@@ -322,8 +323,8 @@ TVM 使用 IEEE-754 `Double` 复利计算，适合估算，不保证分级精度
 ## 设计、验证与贡献记录
 
 - **设计规范**：[设计笔记](notes/design.md) 详细记录了各模块实现边界与数值精度策略。
-- **AI 辅助边界与人工复核记录**：[notes/ai-review.md](notes/ai-review.md) 记录实际 AI 辅助范围、用户已明确的指令与待本人复核清单；九月及十月的人工复核完成状态均缺少本次可核对的本人确认依据，不能据旧文档、测试通过或提交作者认定已审核。
-- **过程开发记录**：[开发记录](notes/development-log.md) 记录了各阶段边界强化、测试补齐与持续集成的真实执行结果。
+- **AI 辅助说明**：[AI 使用范围](notes/ai-review.md) 记录实际 AI 参与范围和当前人工确认状态。
+- **开发记录**：[功能变化与验证记录](notes/development-log.md) 按阶段概述项目改动、AI 辅助范围和可复现检查。
 - **功能对照与回归验证**：[功能对照与回归验证](notes/comparison-and-acceptance.md) 记录了项目功能范围、成熟工具功能矩阵对照、差异说明和固定可复现回归值。
 
 ## 参考来源

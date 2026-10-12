@@ -3,6 +3,13 @@
 
 ///|
 // Fixed synthetic inputs for notes/use-cases.md; no real user or market data.
+fn require(condition : Bool, message : String) -> Unit {
+  if !condition {
+    abort(message)
+  }
+}
+
+///|
 fn main {
   println("设计场景 / 待验证：固定输入计算演示")
   println("【1 金额解析、权重分摊与对账】")
@@ -25,14 +32,12 @@ fn main {
     abort("allocation must conserve amount")
   }
   println("  合计 CNY = " + total.to_decimal_string())
-  println(
-    "  超精度解析被拒绝 = " +
-    (@money.Money::parse("100.001", "CNY") == None).to_string(),
-  )
-  println(
-    "  全零权重被拒绝 = " +
-    (amount.allocate_by_weights([0, 0, 0]) == None).to_string(),
-  )
+  let rejects_precision = @money.Money::parse("100.001", "CNY") == None
+  require(rejects_precision, "excess precision must be rejected")
+  println("  超精度解析被拒绝 = " + rejects_precision.to_string())
+  let rejects_weights = amount.allocate_by_weights([0, 0, 0]) == None
+  require(rejects_weights, "zero weights must be rejected")
+  println("  全零权重被拒绝 = " + rejects_weights.to_string())
 
   println("【2 等间隔现金流审阅】")
   let cashflows = [-1000.0, 300.0, 400.0, 500.0]
@@ -52,7 +57,10 @@ fn main {
     )
   }
   match @capital.net_present_value(0.10, cashflows) {
-    Some(value) => println("  NPV = " + value.to_string())
+    Some(value) => {
+      require((value - -21.0368145).abs() < 1.0e-6, "fixed NPV mismatch")
+      println("  NPV = " + value.to_string())
+    }
     None => abort("fixed cashflows must have NPV")
   }
   match @capital.internal_rate_of_return(cashflows) {
@@ -60,13 +68,16 @@ fn main {
     None => abort("fixed single-sign-change cashflows must have IRR")
   }
   match @capital.net_present_value(0.0, [1.0e16, 1.0, -1.0e16]) {
-    Some(value) => println("  数值压力样例 NPV = " + value.to_string())
+    Some(value) => {
+      require(value == 1.0, "cancellation NPV must preserve the small term")
+      println("  数值压力样例 NPV = " + value.to_string())
+    }
     None => abort("fixed cancellation sample must have NPV")
   }
-  println(
-    "  多次变号唯一 IRR 被拒绝 = " +
-    (@capital.internal_rate_of_return([-100.0, 230.0, -132.0]) == None).to_string(),
-  )
+  let rejects_irr = @capital.internal_rate_of_return([-100.0, 230.0, -132.0]) ==
+    None
+  require(rejects_irr, "multiple-sign-change IRR must be rejected")
+  println("  多次变号唯一 IRR 被拒绝 = " + rejects_irr.to_string())
 
   println("【3 按分还款计划与额外还本】")
   let principal = match @money.Money::parse("10000.00", "CNY") {
@@ -101,6 +112,11 @@ fn main {
     Some(value) => value
     None => abort("baseline plan must reconcile")
   }
+  require(baseline.principal == principal, "baseline principal mismatch")
+  require(
+    baseline.ending_balance == @money.Money::zero("CNY"),
+    "baseline loan must settle",
+  )
   println(
     "  基准汇总本金 CNY = " + baseline.principal.to_decimal_string(),
   )
@@ -123,6 +139,11 @@ fn main {
     Some(value) => value
     None => abort("extra-principal plan must reconcile")
   }
+  require(extra.principal == principal, "extra-principal total mismatch")
+  require(
+    extra.ending_balance == @money.Money::zero("CNY"),
+    "extra-principal loan must settle",
+  )
   println(
     "  额外还本首期还款 CNY = " +
     extra_rows[0].payment.to_decimal_string(),
@@ -143,15 +164,15 @@ fn main {
     Some(value) => value
     None => abort("fixed interest difference must fit Money")
   }
+  require(difference.minor() == 1157, "fixed interest difference mismatch")
   println("  固定模型利息差 CNY = " + difference.to_decimal_string())
-  println(
-    "  零期数被拒绝 = " +
-    (@amortize.equal_installment_money_schedule(
+  let rejects_periods = @amortize.equal_installment_money_schedule(
       principal,
       0.01,
       0,
       @money.round_half_up(),
     ) ==
-    None).to_string(),
-  )
+    None
+  require(rejects_periods, "zero loan periods must be rejected")
+  println("  零期数被拒绝 = " + rejects_periods.to_string())
 }

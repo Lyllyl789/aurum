@@ -26,3 +26,5 @@ jobs:
         run: moon test
       - name: Run CLI demo
         run: moon run bin
+      - name: Run README example
+        run: moon run examples/readme

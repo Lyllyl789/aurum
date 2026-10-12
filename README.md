@@ -44,6 +44,54 @@ Aurum 处理三个可从代码验证的基础计算问题：十进制金额和�
 - **财务比率**：流动性、偿债、盈利、营运与估值指标
 - **多币种**：12 种币种的代码/小数位元数据与调用方提供汇率的换算
 
+## 安装与快速复现
+
+先安装 Git 和 [MoonBit CLI 工具链](https://www.moonbitlang.com/download/#moonbit-cli-tools)，按官方页面选择 Windows、Linux 或 macOS 的安装步骤，并在新终端确认 `moon version --all` 可运行。VS Code 插件不是运行 CLI 的前提。
+
+```sh
+git clone https://github.com/Lyllyl789/aurum.git
+cd aurum
+moon version --all
+moon fmt --check
+moon check
+moon test
+moon run bin
+moon run examples/use-cases
+moon run examples/readme
+```
+
+以上命令在仓库根目录执行，适用于 PowerShell 和常见 POSIX shell。`moon.mod` 声明模块名 **`aurum`**、版本 **`0.1.0`**，没有第三方模块依赖；标准库随工具链提供，无须执行 `moon add`、登录 Mooncakes 或配置 API 密钥。GitHub 仓库名不等于 MoonBit 模块名，不能将导入路径写成 `Lyllyl789/aurum/...`。
+
+三个入口均使用固定输入：`bin` 展示八个模块；`examples/use-cases` 串联金额分摊、现金流和还款场景；`examples/readme` 对应下文可复制的完整代码。`bin` 是开发者演示程序，没有交互输入、行情服务或 Web 界面。
+
+快速核对结果：CLI 的抵消现金流 NPV 为 `1`；场景示例的分摊为 `16.67 / 33.33 / 50.00`、合计 `100.00`，基准贷款总利息 `661.86`、额外还本模型利息差 `11.57`、期末余额 `0.00`。普通 NPV 约为 `-21.03681442524436`，IRR 约为 `0.08896339469338166`；浮点显示末位可因后端不同而变化。示例成功退出不等同于真实业务验证，API 边界由下文测试检查。
+
+## 测试与兼容说明
+
+```sh
+moon fmt --check
+moon check
+moon test
+moon test lib/money lib/tvm lib/capital lib/amortize lib/integration
+moon test lib/capital
+```
+
+`moon fmt --check` 只检查格式；需要修改格式时运行 `moon fmt`，然后重新检查。`moon check` 检查类型及包导入；`moon test` 运行全部测试，包含金额精度/溢出、拒绝输入、浮点误差、NPV 抵消回归和跨模块对账。定向核心测试为 68 项，capital 为 10 项，全量为 93 项（累计测试，非十月全部新增）。任一命令非零退出均须处理；这些检查不证明生产适用性或赛事评审通过。
+
+2026-10-12 在 Windows 上实测：`moon 0.1.20260827 (d0aaa07 2026-08-27)`、`moonc v0.10.11+6ff76a5f9 (2026-08-28)`、`moonrun 0.1.20260827`。配置使用当前的 `moon.mod` / `moon.pkg` 文本格式，旧工具链若不能识别这些文件，应先按官方安装页更新；未测定最低兼容版本。默认 wasm-gc 后端通过上述检查、93 项测试和三个演示，无须额外安装 Node.js 或本地 C 编译器。
+
+另在同一 Windows 工具链和 Node.js v24.19.0 环境实测 JS 后端：
+
+```sh
+moon check --target js
+moon test --target js
+moon run --target js bin
+moon run --target js examples/use-cases
+moon run --target js examples/readme
+```
+
+JS 后端全量 93 项测试通过；运行 JS 需要可从 `PATH` 调用的 Node.js。CI 配置在 Ubuntu 22.04 安装 `latest` 并检查默认后端；该配置不锁定上述实测版本，远端结果以 [GitHub Actions](https://github.com/Lyllyl789/aurum/actions) 对应提交的状态为准。macOS、native、llvm 和其他工具链版本未在本次本地复现中验证，不宣称全平台兼容。
+
 ## 目录结构
 
 ```
@@ -58,51 +106,131 @@ aurum/
 │   ├── ratio/           # 财务比率
 │   └── currency/        # 多币种与汇率
 ├── bin/                 # 命令行演示
+├── examples/
+│   ├── readme/          # README 完整导入与运行示例
+│   └── use-cases/       # 三个固定输入场景
 ├── notes/               # 设计笔记
 └── moon.mod
 ```
 
-## 使用
+## 使用与包导入
+
+### 仓库内可运行示例
+
+在可执行包的 `moon.pkg` 中声明依赖（与 [examples/readme/moon.pkg](examples/readme/moon.pkg) 相同）：
 
 ```moonbit
-// 以 CNY 的最小货币单位（分）构造金额
-let a = Money::of(12345, "CNY")  // 123.45 元
-let b = Money::of(100, "CNY")    // 1.00 元
+import {
+  "aurum/lib/money",
+  "aurum/lib/tvm",
+  "aurum/lib/capital",
+  "aurum/lib/amortize",
+}
 
-let total = a.add(b)             // 12445 分
-println(total.format())          // 124.45
-
-// 严格解析十进制金额，并按权重分摊，分摊结果的和保持精确
-let invoice = Money::parse("100.00", "CNY") // Money?
-let shares = match invoice {
-  Some(value) => value.allocate_by_weights([1, 2, 3])
-  None => None
-} // Array[Money]?
-
-let yen = Money::of(1234, "JPY") // 1234 日元
-println(yen.format())             // 1,234
-let dinar = Money::of(1234, "KWD") // 1.234 科威特第纳尔
-println(dinar.round_to(2, round_half_up()).format()) // 1.230
-
-// 货币时间价值：10000 元按 5% 复利 10 年
-let fv = future_value(10000.0, 0.05, 10)
-// fv: Double?；Some(value) 是估算结果，None 表示输入无效或结果溢出
-
-// 资本预算：净现值与内部收益率
-let cf = [-1000.0, 300.0, 400.0, 500.0]
-let npv = net_present_value(0.10, cf)
-let irr = internal_rate_of_return(cf)
-let payback = payback_period(cf)
-// 三者均为 Double?；请通过 match 处理 Some(value) / None
-
-// 10000.00 CNY，月利率 1%，12 期：逐期按分舍入，末期调整至余额归零
-let schedule = equal_installment_money_schedule(
-  Money::of(1000000, "CNY"),
-  0.01,
-  12,
-  round_half_up(),
-)
+pkgtype(kind: "executable")
 ```
+
+包的默认别名是路径最后一段，例如 `aurum/lib/money` 对应 `@money`。其余四个库包为 `aurum/lib/wear`、`aurum/lib/bond`、`aurum/lib/ratio`、`aurum/lib/currency`；按需要添加导入。根目录没有提供汇总所有 API 的 `aurum` 包。
+
+以下是完整 `main.mbt`，与 [examples/readme/main.mbt](examples/readme/main.mbt) 的执行代码一致。金额构造使用整数最小单位（CNY 为分），利率按每期小数传入；对返回 `Option` 的 API 显式处理 `None`。演示遇到这些失败会中止，实际应用应按自身需求返回错误或提示用户。
+
+```moonbit
+fn main {
+  let a = @money.Money::of(12345, "CNY")
+  let b = @money.Money::of(100, "CNY")
+  println("金额合计 CNY = " + a.add(b).to_decimal_string())
+  let invoice = match @money.Money::parse("100.00", "CNY") {
+    Some(value) => value
+    None => abort("invalid invoice")
+  }
+  let shares = match invoice.allocate_by_weights([1, 2, 3]) {
+    Some(value) => value
+    None => abort("invalid weights")
+  }
+  for share in shares {
+    println("份额 CNY = " + share.to_decimal_string())
+  }
+  match @tvm.future_value(10000.0, 0.05, 10) {
+    Some(value) => println("终值估算 = " + value.to_string())
+    None => abort("invalid TVM input or non-finite result")
+  }
+  match @capital.net_present_value(0.10, [-1000.0, 300.0, 400.0, 500.0]) {
+    Some(value) => println("NPV 估算 = " + value.to_string())
+    None => abort("invalid cashflows or non-finite result")
+  }
+  let rows = match
+    @amortize.equal_installment_money_schedule(
+      @money.Money::of(1000000, "CNY"),
+      0.01,
+      12,
+      @money.round_half_up(),
+    ) {
+    Some(value) => value
+    None => abort("invalid loan input or overflow")
+  }
+  let summary = match @amortize.summarize_money_schedule(rows) {
+    Some(value) => value
+    None => abort("loan reconciliation failed or overflow")
+  }
+  println("贷款总利息 CNY = " + summary.interest.to_decimal_string())
+  println(
+    "贷款期末余额 CNY = " + summary.ending_balance.to_decimal_string(),
+  )
+}
+```
+
+在仓库根目录运行 `moon run examples/readme`，预期输出：
+
+```text
+金额合计 CNY = 124.45
+份额 CNY = 16.67
+份额 CNY = 33.33
+份额 CNY = 50.00
+终值估算 = 16288.946267774423
+NPV 估算 = -21.03681442524436
+贷款总利息 CNY = 661.86
+贷款期末余额 CNY = 0.00
+```
+
+### 从另一个本地 MoonBit 模块导入
+
+复现采用公开 Git 源码，不假定 `aurum@0.1.0` 已在 Mooncakes 发布。准备一个新目录 `review-workspace`，将本仓库克隆为其子目录 `aurum`，并创建以下文件布局：
+
+```text
+review-workspace/
+├── moon.work
+├── aurum/                 # git clone 得到的本仓库
+└── review-app/
+    ├── moon.mod
+    └── main/
+        ├── moon.pkg
+        └── main.mbt
+```
+
+`review-workspace/moon.work`：
+
+```moonbit
+members = ["aurum", "review-app"]
+```
+
+`review-app/moon.mod`：
+
+```moonbit
+name = "review-app"
+version = "0.1.0"
+import {
+  "aurum@0.1.0",
+}
+```
+
+将上文 `moon.pkg` 和完整 `main.mbt` 分别保存到 `review-app/main/`。在 `review-workspace` 目录执行：
+
+```sh
+moon -C review-app check
+moon -C review-app run main
+```
+
+结果应与仓库内示例一致。[MoonBit 本地工作区规则](https://docs.moonbitlang.com/en/latest/toolchain/moon/module.html#dependency-management)使 `aurum` 从 `moon.work` 的本地成员解析；`0.1.0` 对照本仓库元数据填写，不是已发布版本的证明。缺少工作区配置会导致依赖无法按这个流程解析；仅复制 `.mbt` 或仅在包文件中写 `import` 不能替代模块依赖声明。
 
 ### 货币 API 约定
 
@@ -138,11 +266,11 @@ TVM 使用 IEEE-754 `Double` 复利计算，适合估算，不保证分级精度
 
 ### 其余模块的返回边界
 
+`@capital.discounted_cash_flow_schedule(rate, cashflows)` 返回 NPV 的逐期现值分解，期号从 0 开始，便于审计每项折现贡献；只需要合计时继续使用不分配明细数组的 `net_present_value`。
+
 | 模块 | 当前实现的返回与校验 |
 | --- | --- |
 | `amortize` | 浮点 API 要求有限本金、每期利率大于 -1、期数大于 0；返回 `Double?` 或 `Array[Payment]?`。`Money` 计划要求正本金、非负每期利率，利息逐期按指定舍入模式到币种最小单位；可传入可选额外本金，提前结清后的行置零，最后一个非零还款调整为结清余额。`summarize_money_schedule` 校验期号、币种、逐期加总和余额衔接，并汇总本金/利息/还款。 |
-
-`capital.discounted_cash_flow_schedule(rate, cashflows)` 返回 NPV 的逐期现值分解，期号从 0 开始，便于审计每项折现贡献；只需要合计时继续使用不分配明细数组的 `net_present_value`。
 | `wear` | 成本与残值须有限，使用年限须大于 0；逐年函数的年份须在 1 到使用年限内，工作量法的总工作量须有限且大于 0、当期工作量须有限。结果非有限返回 `None`。当前未强制成本、残值和工作量的财务业务关系；调用方须自行确认残值不高于成本及当期工作量的业务范围。 |
 | `bond` | 票息、面值、收益率或市价中实际使用的输入须有限，期数须大于 0；定价依赖 `tvm` 的 `rate > -1` 约束。零价格使久期/凸性返回 `None`；到期收益率在实现的搜索范围内无法括根或计算失败也返回 `None`。 |
 | `ratio` | 任一参与计算的输入非有限、分母为 0 或比值非有限时返回 `None`。它不检查各指标的财务业务关系。 |

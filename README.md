@@ -152,6 +152,7 @@ pkgtype(kind: "executable")
 以下是完整 `main.mbt`，与 [examples/readme/main.mbt](examples/readme/main.mbt) 的执行代码一致。金额构造使用整数最小单位（CNY 为分），利率按每期小数传入；对返回 `Option` 的 API 显式处理 `None`。演示遇到这些失败会中止，实际应用应按自身需求返回错误或提示用户。
 
 ```moonbit
+///|
 fn main {
   let a = @money.Money::of(12345, "CNY")
   let b = @money.Money::of(100, "CNY")
@@ -227,14 +228,19 @@ review-workspace/
 `review-workspace/moon.work`：
 
 ```moonbit
-members = ["aurum", "review-app"]
+members = [
+  "aurum",
+  "review-app",
+]
 ```
 
 `review-app/moon.mod`：
 
 ```moonbit
 name = "review-app"
+
 version = "0.1.0"
+
 import {
   "aurum@0.1.0",
 }
@@ -243,6 +249,7 @@ import {
 将上文 `moon.pkg` 和完整 `main.mbt` 分别保存到 `review-app/main/`。在 `review-workspace` 目录执行：
 
 ```sh
+moon -C review-app fmt --check
 moon -C review-app check
 moon -C review-app run main
 ```

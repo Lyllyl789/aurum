@@ -1,8 +1,8 @@
-# 对标与验收说明
+# 功能对照与回归验证
 
 ## 项目范围
 
-Aurum 是 MoonBit 中的基础金融计算库原型。项目核心验收重点放在三项可检查能力：
+Aurum 是 MoonBit 中的基础金融计算库原型。项目核心范围包含三项可检查能力：
 
 1. `money`：用币种最小单位的整数表达金额，并明确范围、舍入和错误契约；
 2. `tvm` 与 `capital`：实现常见周期现金流估算，并说明 NPV 时间点、IRR 可报告条件和数值边界；
@@ -26,9 +26,9 @@ MoonBit 生态内的相邻包与具体能力交集另见 [MoonBit 生态定位�
 
 来源： [NumPy Financial 函数索引](https://numpy.org/numpy-financial/latest/genindex.html)、[NumPy Financial `fv`](https://numpy.org/numpy-financial/latest/fv.html)、[NumPy Financial `npv`](https://numpy.org/numpy-financial/latest/_api_stubs/numpy_financial.npv.html)、[Python `decimal`](https://docs.python.org/3/library/decimal.html)、[QuantLib 项目介绍](https://www.quantlib.org/index.shtml)、[QuantLib 官方文档入口](https://www.quantlib.org/docs.shtml)。
 
-## 可复现验收
+## 可复现回归样例
 
-以下固定样例用于验收项目承诺的核心功能。浮点结果使用给定绝对误差；这些是实现回归值，不是跨语言性能基准。跨模块断言位于 `lib/integration/integration.mbt`，公式级数值断言和边界契约由各模块单元测试覆盖。
+以下固定样例用于检查核心功能的计算行为。浮点结果使用给定绝对误差；这些是实现回归值，不是跨语言性能基准。跨模块断言位于 `lib/integration/integration.mbt`，公式级数值断言和边界契约由各模块单元测试覆盖。
 
 | 场景 | 输入 | 预期结果 | 容差/判定 |
 | --- | --- | --- | --- |
@@ -37,7 +37,7 @@ MoonBit 生态内的相邻包与具体能力交集另见 [MoonBit 生态定位�
 | 单笔终值 | `1000`，每期利率 `0.05`，`2` 期 | `1102.5` | 绝对误差 `< 1e-9` |
 | 利率口径换算 | 名义年利率 `0.12`，每年复利 `12` 次 | 有效年利率约 `0.12682503013196977` | 绝对误差 `< 1e-12` |
 | NPV | `[-1000, 300, 400, 500]`，折现率 `0.10` | 约 `-21.0368145` | 绝对误差 `< 1e-6`；首项为 `t=0` |
-| NPV 逐期审计 | 同一现金流与折现率 | 第 0 期现值为 `-1000`；逐期现值之和等于 NPV | 聚合差绝对值 `< 1e-12` |
+| NPV 逐期审计 | 同一现金流与折现率 | 第 0 期现值为 `-1000`；此固定样例的明细普通合计与 NPV 在给定容差内一致 | 聚合差绝对值 `< 1e-12` |
 | IRR | `[-100, 110]` | 约 `0.10` | 绝对误差 `< 1e-9`；仅单次符号变化 |
 | 等额本息 | 本金 `10000`，每期利率 `0.01`，`12` 期 | 每期约 `888.4878869` | 绝对误差 `< 1e-6` |
 | 分位还款计划 | `Money(10000.00 CNY)`，每期利率 `0.01`，`12` 期，half-up | 首期还款 `888.49 CNY`，汇总本金 `10000.00 CNY`，期末余额为零 | 每期整数分守恒；末期结清 |
@@ -51,6 +51,8 @@ moon fmt --check
 moon check
 moon test
 moon run bin
+moon run examples/use-cases
+moon run examples/readme
 ```
 
-验收时逐项记录四条命令的退出状态；全量测试还应包含跨模块场景。`Money` 的非法币种、币种不一致、越界舍入或整数溢出属于中止契约，不能与返回 `None` 的浮点 API 混为一谈。重新提交前由项目负责人在当前提交上复跑命令并核对本页数值。
+复现时逐项记录六条命令的退出状态；全量测试还应包含跨模块场景。`Money` 的非法币种、币种不一致、越界舍入或整数溢出属于中止契约，不能与返回 `None` 的浮点 API 混为一谈。使用者应在所用提交上复跑命令并核对本页数值；这些结果不表示真实业务适用性或赛事结论。

@@ -24,7 +24,7 @@ Aurum 是一个用 MoonBit 编写的基础金融计算库。本文记录当前�
 
 | 改动 | 内容 | 可核对位置 |
 | --- | --- | --- |
-| NPV 数值稳定性 | 对逐期现值求和加入 Neumaier 补偿；抵消输入 `[1e16, 1, -1e16]`、折现率 `0` 的结果为 `1` | [`9c62fe2`](https://github.com/Lyllyl789/aurum/commit/9c62fe2363512c61d6108738e8c59b0e0ab3ee3b)、`lib/capital/capital.mbt`、`lib/capital/capital_test.mbt` |
+| NPV 数值稳定性 | 对逐期现值求和加入 Neumaier 补偿；抵消输入 `[1e16, 1, -1e16]`、折现率 `0` 的结果为 `1` | [`d621e51`](https://github.com/Lyllyl789/aurum/commit/d621e518f3c83ecb672b2905b76dac55f768bb8c)、`lib/capital/capital.mbt`、`lib/capital/capital_test.mbt` |
 | 场景示例 | 串联金额分摊、现金流估算和还款对账；关键固定结果不符时演示失败 | `examples/use-cases/` |
 | 可复现步骤 | 增加完整导入示例及仓库内运行方式 | `examples/readme/`、README |
 | CI 环境 | 固定已验证的 MoonBit 工具链版本；CI 检查格式、类型、测试、CLI 和示例 | `.github/workflows/ci.yml` |
@@ -33,7 +33,7 @@ Aurum 是一个用 MoonBit 编写的基础金融计算库。本文记录当前�
 
 ## 验证
 
-当前版本的 GitHub Actions 格式、类型、全量测试、CLI、场景和 README 示例步骤均通过：[检查记录](https://github.com/Lyllyl789/aurum/actions/runs/38266039807)。测试总数包含九月已有测试；十月新增的金融单元回归为 NPV 抵消用例一项，场景示例中的断言不计作单元测试。
+当前版本的 GitHub Actions 格式、类型、全量测试、CLI、场景和 README 示例步骤均通过：[检查记录](https://github.com/Lyllyl789/aurum/actions/runs/38268553500)。测试总数包含九月已有测试；十月新增的金融单元回归为 NPV 抵消用例一项，场景示例中的断言不计作单元测试。
 
 NPV 仍以 `Double` 计算。补偿求和能改善部分浮点累加误差，但不提供任意精度，也不保证适用于未经业务复核的资金结算。
 

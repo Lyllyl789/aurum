@@ -7,7 +7,7 @@
 - 从 [Mooncakes](https://mooncakes.io/) 的模块目录和搜索接口查找 `finance`、`financial`、`money`、`decimal`、`rational`、`npv`、`loan`、`bond`、`accounting`、`aurum`，再阅读相关模块的已发布 README、API 类型和函数签名。可复查入口：[模块目录](https://mooncakes.io/api-new/v0/modules)、[finance 搜索](https://mooncakes.io/api-new/v0/search?kw=finance&limit=20)、[decimal 搜索](https://mooncakes.io/api-new/v0/search?kw=decimal&limit=20)、[loan 搜索](https://mooncakes.io/api-new/v0/search?kw=loan&limit=20)。搜索每项最多 20 个结果，目录元数据和搜索索引也可能不完整；关键词无命中不能证明某类能力不存在。
 - 下表选取与金额、现金流和贷款直接相关的包及邻近的报表、模拟、导入能力，**不是全生态清单**。包版本固定在链接中；官方 core 另记录本次读取的发布版本。Mooncakes 页面背后的发布数据可从 `https://assets.mooncakes.io/assets/<模块>@<版本>/resource.json`（README）和 `<包路径>/package_data.json`（API）复查。
 - 其他项目的能力描述来自其发布文档/API，未安装或运行这些项目，未复跑其测试、性能基准或形式化证明。文档描述不等同于本次独立验证的业务正确性、成熟度或兼容性。
-- Aurum 一侧以整理本页时的 [a12307c](https://github.com/Lyllyl789/aurum/commit/a12307c2c86c95660793d41e3639a766eaf49a6c) 源码、已有测试和固定演示为依据；本次不新增金融算法，也不将既有能力计作十月新增。
+- Aurum 一侧以整理本页时的 [cae9033](https://github.com/Lyllyl789/aurum/commit/cae90336dad088bd5424f9db5ea62caa40ebaf07) 源码、已有测试和固定演示为依据；本次不新增金融算法，也不将既有能力计作十月新增。
 
 ## 相邻能力与具体差异
 

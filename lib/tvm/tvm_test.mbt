@@ -49,12 +49,24 @@ test "ordinary and due annuities" {
     approx(@tvm.future_value_annuity(1000.0, -0.1, 2), 1900.0, 1.0e-9),
   )
   assert_true(
-    approx(present_value_annuity(1000.0, -0.1, 2), 2345.679012345679, 1.0e-9),
+    approx(
+      @tvm.present_value_annuity(1000.0, -0.1, 2),
+      2345.679012345679,
+      1.0e-9,
+    ),
   )
-  assert_true(approx(future_value_annuity_due(1000.0, 0.0, 0), 0.0, 1.0e-9))
-  assert_true(approx(present_value_annuity_due(1000.0, 0.0, 0), 0.0, 1.0e-9))
   assert_true(
-    approx(future_value_annuity(1000.0, 1.0e-12, 3), 3000.000000003, 1.0e-8),
+    approx(@tvm.future_value_annuity_due(1000.0, 0.0, 0), 0.0, 1.0e-9),
+  )
+  assert_true(
+    approx(@tvm.present_value_annuity_due(1000.0, 0.0, 0), 0.0, 1.0e-9),
+  )
+  assert_true(
+    approx(
+      @tvm.future_value_annuity(1000.0, 1.0e-12, 3),
+      3000.000000003,
+      1.0e-8,
+    ),
   )
 }
 

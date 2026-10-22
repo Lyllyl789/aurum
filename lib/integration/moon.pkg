@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/double",
   "Lyllyl789/aurum/lib/money",
   "Lyllyl789/aurum/lib/currency",
   "Lyllyl789/aurum/lib/amortize",

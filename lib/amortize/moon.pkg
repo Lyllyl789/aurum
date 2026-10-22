@@ -2,3 +2,7 @@ import {
   "moonbitlang/core/math",
   "Lyllyl789/aurum/lib/money",
 }
+
+import {
+  "moonbitlang/core/double",
+} for "test"

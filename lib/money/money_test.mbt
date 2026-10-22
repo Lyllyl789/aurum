@@ -134,7 +134,7 @@ test "fallible arithmetic and aggregation report errors as None" {
   assert_eq(a.to_decimal_string(), "1.25")
   assert_eq(a.ratio_to(@money.Money::of(500, "CNY")), Some(0.25))
   assert_eq(a.ratio_to(@money.Money::zero("CNY")), None)
-  assert_eq(a.ratio_to(Money::of(500, "USD")), None)
+  assert_eq(a.ratio_to(@money.Money::of(500, "USD")), None)
 }
 
 ///|
@@ -383,9 +383,15 @@ test "currency digits and zero decimal formatting" {
 
 ///|
 test "rounding respects currency digits and negative values" {
-  let kwd = Money::of(1234567, "KWD")
-  assert_eq(kwd.round_to(0, round_half_up()), Money::of(1235000, "KWD"))
-  assert_eq(kwd.round_to(2, round_half_up()), Money::of(1234570, "KWD"))
+  let kwd = @money.Money::of(1234567, "KWD")
+  assert_eq(
+    kwd.round_to(0, @money.round_half_up()),
+    @money.Money::of(1235000, "KWD"),
+  )
+  assert_eq(
+    kwd.round_to(2, @money.round_half_up()),
+    @money.Money::of(1234570, "KWD"),
+  )
   assert_eq(kwd.round_to(3, @money.round_half_up()), kwd)
   assert_eq(
     @money.Money::of(-125, "CNY").round_to(1, @money.round_half_up()),

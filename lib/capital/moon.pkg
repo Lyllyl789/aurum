@@ -1,3 +1,7 @@
 import {
   "Lyllyl789/aurum/lib/tvm",
 }
+
+import {
+  "moonbitlang/core/double",
+} for "test"

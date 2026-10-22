@@ -46,22 +46,22 @@ Aurum 处理三个可从代码验证的基础计算问题：十进制金额和�
 
 ## 安装与快速复现
 
-先安装 Git，再使用 [MoonBit 官方安装器](https://www.moonbitlang.com/download/#moonbit-cli-tools)安装本仓库实测的构建 **`0.10.15+943464bfa`**。安装器的版本参数对应 `moonc` 构建号，与下文 `moon` 的版本号不同。VS Code 插件不是运行 CLI 的前提。
+先安装 Git，再使用 [MoonBit 官方安装器](https://www.moonbitlang.com/download/#moonbit-cli-tools)安装本仓库实测的构建 **`0.10.16+b1a0e846e`**。安装器的版本参数对应 `moonc` 构建号，与下文 `moon` 的版本号不同。VS Code 插件不是运行 CLI 的前提。
 
 Windows PowerShell：
 
 ```powershell
-$env:MOONBIT_INSTALL_VERSION = "0.10.15+943464bfa"
+$env:MOONBIT_INSTALL_VERSION = "0.10.16+b1a0e846e"
 irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
 ```
 
 Linux / macOS（官方安装器命令；本次本地验证环境为 Windows，Linux 由 CI 验证）：
 
 ```sh
-curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s -- '0.10.15+943464bfa'
+curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s -- '0.10.16+b1a0e846e'
 ```
 
-安装后打开新终端，在克隆前运行 `moon version --all`，确认 `moonc v0.10.15+943464bfa`。已有其他工具链时也须核对当前 `PATH` 选择的版本；不要仅凭安装器执行成功判断版本已切换。
+安装后打开新终端，在克隆前运行 `moon version --all`，确认 `moonc v0.10.16+b1a0e846e`。已有其他工具链时也须核对当前 `PATH` 选择的版本；不要仅凭安装器执行成功判断版本已切换。
 
 ```sh
 git clone https://github.com/Lyllyl789/aurum.git
@@ -94,7 +94,7 @@ moon test lib/capital
 
 `moon fmt --check` 只检查格式；需要修改格式时运行 `moon fmt`，然后重新检查。`moon check` 检查类型及包导入；`moon test` 运行全部测试，包含金额精度/溢出、拒绝输入、浮点误差、NPV 抵消回归和跨模块对账。定向核心测试为 68 项，capital 为 10 项，全量为 93 项。任一命令非零退出均须处理；这些检查不证明生产适用性或业务口径适合具体用途。
 
-2026-10-22 在 Windows 上实测：`moon 0.1.20261012 (748b63c 2026-10-12)`、`moonc v0.10.15+943464bfa`、`moonrun 0.1.20261012`。配置使用 `moon.mod` / `moon.pkg` 文本格式；默认 wasm-gc 后端通过格式检查、类型检查、93 项测试和三个演示，无须额外安装 Node.js 或本地 C 编译器。
+2026-10-22 在 Windows 上实测：`moon 0.1.20261020 (2284bd2 2026-10-20)`、`moonc v0.10.16+b1a0e846e`、`moonrun 0.1.20261020`。配置使用 `moon.mod` / `moon.pkg` 文本格式；默认 wasm-gc 后端通过格式检查、类型检查、93 项测试和三个演示，无须额外安装 Node.js 或本地 C 编译器。
 
 另在同一 Windows 工具链和 Node.js v24.19.0 环境实测 JS 后端：
 
@@ -106,9 +106,9 @@ moon run --target js examples/use-cases
 moon run --target js examples/readme
 ```
 
-JS 后端全量 93 项测试通过；运行 JS 需要可从 `PATH` 调用的 Node.js。CI 在 Ubuntu 22.04 安装与上述实测相同的 `0.10.15+943464bfa` 构建，检查格式、类型、构建、测试及三个默认后端演示；远端结果以 [GitHub Actions](https://github.com/Lyllyl789/aurum/actions) 对应提交的状态为准。macOS、native、llvm 和其他工具链版本未在本次本地复现中验证，不宣称全平台兼容。
+JS 后端全量 93 项测试通过；运行 JS 需要可从 `PATH` 调用的 Node.js。CI 在 Ubuntu 22.04 安装与上述实测相同的 `0.10.16+b1a0e846e` 构建，检查格式、类型、构建、测试及三个默认后端演示；远端结果以 [GitHub Actions](https://github.com/Lyllyl789/aurum/actions) 对应提交的状态为准。macOS、native、llvm 和其他工具链版本未在本次本地复现中验证，不宣称全平台兼容。
 
-CI 与复现步骤固定使用 MoonBit 编译器 `0.10.15+943464bfa`，高于项目要求的 `moonc >= 0.10.14`。更新工具链时需重新运行格式、类型、构建、测试和所有示例。
+CI 与复现步骤固定使用 MoonBit 编译器 `0.10.16+b1a0e846e`，满足项目要求的 `moonc >= 0.10.16`。更新工具链时需重新运行格式、类型、构建、测试和所有示例。
 
 ## 目录结构
 

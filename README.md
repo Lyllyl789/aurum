@@ -108,7 +108,7 @@ moon run --target js examples/readme
 
 JS 后端全量 93 项测试通过；运行 JS 需要可从 `PATH` 调用的 Node.js。CI 在 Ubuntu 22.04 安装与上述实测相同的 `0.10.16+b1a0e846e` 构建，检查格式、类型、构建、测试及三个默认后端演示；远端结果以 [GitHub Actions](https://github.com/Lyllyl789/aurum/actions) 对应提交的状态为准。macOS、native、llvm 和其他工具链版本未在本次本地复现中验证，不宣称全平台兼容。
 
-CI 与复现步骤固定使用 MoonBit 编译器 `0.10.16+b1a0e846e`，满足项目要求的 `moonc >= 0.10.16`。更新工具链时需重新运行格式、类型、构建、测试和所有示例。
+十月验收指南列出的最低工具链要求是 `moonc >= 0.10.14`；本项目的 CI 与复现步骤固定使用已验证的 `0.10.16+b1a0e846e`。更新工具链时需重新运行格式、类型、构建、测试和所有示例。
 
 ## 目录结构
 

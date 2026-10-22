@@ -43,13 +43,13 @@ pub fn round_up() -> RoundMode {
 /// 精确金额，以币种的最小货币单位 `minor` 存储。
 /// `currency` 必须是 currency_decimals 支持的 ISO 4217 代码。
 pub struct Money {
-  priv minor : Int
+  priv minor : Int32
   priv currency : String
 } derive(Debug, Eq)
 
 ///|
 /// 返回以最小货币单位表示的整数金额。
-pub fn Money::minor(self : Money) -> Int {
+pub fn Money::minor(self : Money) -> Int32 {
   self.minor
 }
 
@@ -63,7 +63,7 @@ pub fn Money::currency(self : Money) -> String {
 /// 返回受支持币种的 ISO 4217 小数位数；未知或非法代码会中止。
 /// 支持 CNY、USD、EUR、GBP（2 位），JPY、KRW、VND（0 位），
 /// KWD、BHD、OMR、JOD、TND（3 位）。
-pub fn currency_decimals(currency : String) -> Int {
+pub fn currency_decimals(currency : String) -> Int32 {
   match currency_decimals_option(currency) {
     Some(decimals) => decimals
     None => abort("unsupported currency: " + currency)
@@ -71,7 +71,7 @@ pub fn currency_decimals(currency : String) -> Int {
 }
 
 ///|
-fn currency_decimals_option(currency : String) -> Int? {
+fn currency_decimals_option(currency : String) -> Int32? {
   match currency {
     "JPY" | "KRW" | "VND" => Some(0)
     "CNY" | "USD" | "EUR" | "GBP" => Some(2)
@@ -82,14 +82,14 @@ fn currency_decimals_option(currency : String) -> Int? {
 
 ///|
 /// 以最小货币单位构造金额。
-pub fn Money::of(minor : Int, currency : String) -> Money {
+pub fn Money::of(minor : Int32, currency : String) -> Money {
   ignore(currency_decimals(currency))
   { minor, currency, }
 }
 
 ///|
 /// Fallible counterpart to `Money::of`; unsupported currency codes return None.
-pub fn Money::try_of(minor : Int, currency : String) -> Money? {
+pub fn Money::try_of(minor : Int32, currency : String) -> Money? {
   match currency_decimals_option(currency) {
     Some(_) => Some({ minor, currency, })
     None => None
@@ -277,7 +277,7 @@ pub fn Money::neg(self : Money) -> Money {
 
 ///|
 /// 按整数倍缩放金额（乘以标量）。
-pub fn Money::scale(self : Money, factor : Int) -> Money {
+pub fn Money::scale(self : Money, factor : Int32) -> Money {
   checked_money(self.minor.to_int64() * factor.to_int64(), self.currency)
 }
 
@@ -315,14 +315,14 @@ pub fn Money::abs(self : Money) -> Money? {
 
 ///|
 /// Fallible integer scaling counterpart to `scale`.
-pub fn Money::try_scale(self : Money, factor : Int) -> Money? {
+pub fn Money::try_scale(self : Money, factor : Int32) -> Money? {
   try_money(self.minor.to_int64() * factor.to_int64(), self.currency)
 }
 
 ///|
 /// Compares two same-currency amounts. Returns None instead of aborting when
 /// the currencies differ.
-pub fn Money::try_compare(self : Money, other : Money) -> Int? {
+pub fn Money::try_compare(self : Money, other : Money) -> Int32? {
   if self.currency != other.currency {
     return None
   }
@@ -400,8 +400,8 @@ pub fn Money::sum(values : Array[Money], currency : String) -> Money? {
 /// the amount to binary floating point. The denominator must be positive.
 pub fn Money::scale_ratio(
   self : Money,
-  numerator : Int,
-  denominator : Int,
+  numerator : Int32,
+  denominator : Int32,
   mode : RoundMode,
 ) -> Money? {
   if denominator <= 0 {
@@ -459,7 +459,7 @@ fn round_div_int64(
 /// Splits an amount equally into `parts` pieces. Any leftover minor units are
 /// assigned one at a time to the earliest pieces, so the results sum exactly
 /// to the original amount. Returns None when `parts` is not positive.
-pub fn Money::allocate_equal(self : Money, parts : Int) -> Array[Money]? {
+pub fn Money::allocate_equal(self : Money, parts : Int32) -> Array[Money]? {
   if parts <= 0 {
     return None
   }
@@ -479,7 +479,7 @@ pub fn Money::allocate_equal(self : Money, parts : Int) -> Array[Money]? {
 
 ///|
 priv struct AllocationRemainder {
-  index : Int
+  index : Int32
   remainder : Int64
 }
 
@@ -494,8 +494,8 @@ fn remainder_has_priority(
 ///|
 fn swap_remainders(
   items : Array[AllocationRemainder],
-  a : Int,
-  b : Int,
+  a : Int32,
+  b : Int32,
 ) -> Unit {
   let temp = items[a]
   items[a] = items[b]
@@ -505,8 +505,8 @@ fn swap_remainders(
 ///|
 fn sift_remainders_down(
   items : Array[AllocationRemainder],
-  root : Int,
-  end : Int,
+  root : Int32,
+  end : Int32,
 ) -> Unit {
   let mut parent = root
   while true {
@@ -551,7 +551,7 @@ fn sort_remainders_ascending(items : Array[AllocationRemainder]) -> Unit {
 /// Ties go to the lower input index; results always sum exactly to `self`.
 pub fn Money::allocate_by_weights(
   self : Money,
-  weights : Array[Int],
+  weights : Array[Int32],
 ) -> Array[Money]? {
   if weights.length() == 0 {
     return None
@@ -620,7 +620,11 @@ pub fn Money::is_negative(self : Money) -> Bool {
 ///|
 /// 整数除法并按舍入策略取整：计算 numerator / denominator 的舍入结果。
 /// 这是利率、摊销等后续模块共用的精度原语，全程避免浮点。
-pub fn round_div(numerator : Int, denominator : Int, mode : RoundMode) -> Int {
+pub fn round_div(
+  numerator : Int32,
+  denominator : Int32,
+  mode : RoundMode,
+) -> Int32 {
   if denominator <= 0 {
     abort("round_div: denominator must be positive")
   }
@@ -662,7 +666,11 @@ pub fn round_div(numerator : Int, denominator : Int, mode : RoundMode) -> Int {
 
 ///|
 /// 将金额舍入到指定小数位，范围为 0 到该币种的小数位数。
-pub fn Money::round_to(self : Money, decimals : Int, mode : RoundMode) -> Money {
+pub fn Money::round_to(
+  self : Money,
+  decimals : Int32,
+  mode : RoundMode,
+) -> Money {
   let currency_digits = currency_decimals(self.currency)
   if decimals < 0 || decimals > currency_digits {
     abort("Money::round_to: decimals out of range")

@@ -16,7 +16,7 @@ fn finite(x : Double) -> Bool {
 pub fn straight_line_depreciation(
   cost : Double,
   salvage : Double,
-  life : Int,
+  life : Int32,
 ) -> Double? {
   if !finite(cost) || !finite(salvage) || life <= 0 {
     return None
@@ -35,8 +35,8 @@ pub fn straight_line_depreciation(
 pub fn double_declining_balance_depreciation(
   cost : Double,
   salvage : Double,
-  life : Int,
-  year : Int,
+  life : Int32,
+  year : Int32,
 ) -> Double? {
   if !finite(cost) || !finite(salvage) || life <= 0 || year < 1 || year > life {
     return None
@@ -76,8 +76,8 @@ pub fn double_declining_balance_depreciation(
 pub fn sum_of_years_digits_depreciation(
   cost : Double,
   salvage : Double,
-  life : Int,
-  year : Int,
+  life : Int32,
+  year : Int32,
 ) -> Double? {
   if !finite(cost) || !finite(salvage) || life <= 0 || year < 1 || year > life {
     return None

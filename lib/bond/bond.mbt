@@ -17,7 +17,7 @@ pub fn price(
   coupon : Double,
   face : Double,
   yld : Double,
-  periods : Int,
+  periods : Int32,
 ) -> Double? {
   if !finite(coupon) || !finite(face) || !finite(yld) || periods <= 0 {
     return None
@@ -45,7 +45,7 @@ fn price_difference(
   yld : Double,
   coupon : Double,
   face : Double,
-  periods : Int,
+  periods : Int32,
   target : Double,
 ) -> Double? {
   match price(coupon, face, yld, periods) {
@@ -67,7 +67,7 @@ pub fn yield_to_maturity(
   market_price : Double,
   coupon : Double,
   face : Double,
-  periods : Int,
+  periods : Int32,
 ) -> Double? {
   if !finite(market_price) || !finite(coupon) || !finite(face) || periods <= 0 {
     return None
@@ -130,7 +130,7 @@ pub fn macaulay_duration(
   coupon : Double,
   face : Double,
   yld : Double,
-  periods : Int,
+  periods : Int32,
 ) -> Double? {
   if !finite(coupon) || !finite(face) || !finite(yld) || periods <= 0 {
     return None
@@ -171,7 +171,7 @@ pub fn modified_duration(
   coupon : Double,
   face : Double,
   yld : Double,
-  periods : Int,
+  periods : Int32,
 ) -> Double? {
   match macaulay_duration(coupon, face, yld, periods) {
     Some(d) => {
@@ -192,7 +192,7 @@ pub fn convexity(
   coupon : Double,
   face : Double,
   yld : Double,
-  periods : Int,
+  periods : Int32,
 ) -> Double? {
   if !finite(coupon) || !finite(face) || !finite(yld) || periods <= 0 {
     return None

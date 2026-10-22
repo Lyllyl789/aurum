@@ -16,7 +16,7 @@ fn finite(x : Double) -> Bool {
 pub struct Currency {
   code : String
   symbol : String
-  decimals : Int
+  decimals : Int32
 } derive(Debug, Eq)
 
 ///|
@@ -41,7 +41,7 @@ pub fn lookup(code : String) -> Currency? {
 
 ///|
 /// 半向上取整到整数（远离零）。
-fn round_half_up(x : Double) -> Int {
+fn round_half_up(x : Double) -> Int32 {
   if x >= 0.0 {
     (x + 0.5).to_int()
   } else {

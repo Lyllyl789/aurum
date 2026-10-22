@@ -14,20 +14,32 @@ fn approx(value : Double?, expected : Double, eps : Double) -> Bool {
 test "equal installment payment" {
   // 本金 10000，月利率 1%，12 期：月供约 888.49
   assert_true(
-    approx(equal_installment_payment(10000.0, 0.01, 12), 888.4878869, 1.0e-6),
+    approx(
+      @amortize.equal_installment_payment(10000.0, 0.01, 12),
+      888.4878869,
+      1.0e-6,
+    ),
   )
   // 零利率时即为等额分摊
   assert_true(
-    approx(equal_installment_payment(10000.0, 0.0, 12), 833.3333333, 1.0e-6),
+    approx(
+      @amortize.equal_installment_payment(10000.0, 0.0, 12),
+      833.3333333,
+      1.0e-6,
+    ),
   )
   assert_true(
-    approx(equal_installment_payment(10000.0, 1.0e-12, 12), 833.3333333, 1.0e-6),
+    approx(
+      @amortize.equal_installment_payment(10000.0, 1.0e-12, 12),
+      833.3333333,
+      1.0e-6,
+    ),
   )
 }
 
 ///|
 test "equal installment schedule" {
-  match equal_installment_schedule(10000.0, 0.01, 12) {
+  match @amortize.equal_installment_schedule(10000.0, 0.01, 12) {
     Some(s) => {
       assert_eq(s.length(), 12)
       assert_true((s[0].interest - 100.0).abs() < 1.0e-9)
@@ -46,7 +58,7 @@ test "equal installment schedule" {
 
 ///|
 test "equal principal schedule" {
-  match equal_principal_schedule(10000.0, 0.01, 12) {
+  match @amortize.equal_principal_schedule(10000.0, 0.01, 12) {
     Some(s) => {
       assert_eq(s.length(), 12)
       assert_true((s[0].principal - 833.3333333).abs() < 1.0e-6)
@@ -61,36 +73,44 @@ test "equal principal schedule" {
 test "total interest" {
   assert_true(
     approx(
-      total_interest_equal_installment(10000.0, 0.01, 12),
+      @amortize.total_interest_equal_installment(10000.0, 0.01, 12),
       661.8546414,
       1.0e-6,
     ),
   )
   assert_true(
-    approx(total_interest_equal_principal(10000.0, 0.01, 12), 650.0, 1.0e-9),
+    approx(
+      @amortize.total_interest_equal_principal(10000.0, 0.01, 12),
+      650.0,
+      1.0e-9,
+    ),
   )
 }
 
 ///|
 test "invalid inputs return None" {
-  assert_true(equal_installment_payment(10000.0, 0.01, 0) == None)
-  assert_true(equal_installment_payment(10000.0, 0.01, -1) == None)
-  assert_true(equal_installment_schedule(10000.0, -1.0, 12) == None)
-  assert_true(equal_principal_schedule(10000.0, 0.01, 0) == None)
-  assert_true(total_interest_equal_installment(10000.0, 0.01, 0) == None)
-  assert_true(total_interest_equal_principal(10000.0, 0.01, 0) == None)
+  assert_true(@amortize.equal_installment_payment(10000.0, 0.01, 0) == None)
+  assert_true(@amortize.equal_installment_payment(10000.0, 0.01, -1) == None)
+  assert_true(@amortize.equal_installment_schedule(10000.0, -1.0, 12) == None)
+  assert_true(@amortize.equal_principal_schedule(10000.0, 0.01, 0) == None)
+  assert_true(
+    @amortize.total_interest_equal_installment(10000.0, 0.01, 0) == None,
+  )
+  assert_true(
+    @amortize.total_interest_equal_principal(10000.0, 0.01, 0) == None,
+  )
 }
 
 ///|
 test "schedules reject non finite fields" {
-  assert_true(equal_principal_schedule(1.0e308, 10.0, 2) == None)
+  assert_true(@amortize.equal_principal_schedule(1.0e308, 10.0, 2) == None)
 }
 
 ///|
 test "equal principal total interest handles large period count" {
   assert_true(
     approx(
-      total_interest_equal_principal(1.0, 0.01, 2147483647),
+      @amortize.total_interest_equal_principal(1.0, 0.01, 2147483647),
       10737418.24,
       1.0e-6,
     ),
@@ -101,7 +121,7 @@ test "equal principal total interest handles large period count" {
 test "minor-unit equal-installment schedule reconciles every row" {
   let principal = @money.Money::of(1000000, "CNY")
   match
-    equal_installment_money_schedule(
+    @amortize.equal_installment_money_schedule(
       principal,
       0.01,
       12,
@@ -132,7 +152,7 @@ test "minor-unit equal-installment schedule reconciles every row" {
       }
       assert_eq(principal_total, principal.minor())
       assert_true(payment_total > principal_total)
-      match summarize_money_schedule(rows) {
+      match @amortize.summarize_money_schedule(rows) {
         Some(summary) => {
           assert_eq(summary.periods, 12)
           assert_eq(summary.principal.minor(), principal.minor())
@@ -150,7 +170,12 @@ test "minor-unit equal-installment schedule reconciles every row" {
 test "minor-unit equal-principal schedule places remainder in final period" {
   let principal = @money.Money::of(1000, "CNY")
   match
-    equal_principal_money_schedule(principal, 0.0, 3, @money.round_half_up()) {
+    @amortize.equal_principal_money_schedule(
+      principal,
+      0.0,
+      3,
+      @money.round_half_up(),
+    ) {
     Some(rows) => {
       assert_eq(rows[0].principal.minor(), 333)
       assert_eq(rows[1].principal.minor(), 333)
@@ -170,7 +195,7 @@ test "minor-unit equal-principal schedule places remainder in final period" {
 ///|
 test "minor-unit loan schedules handle early payoff and currency scale" {
   match
-    equal_installment_money_schedule(
+    @amortize.equal_installment_money_schedule(
       @money.Money::of(2, "CNY"),
       0.0,
       4,
@@ -186,7 +211,7 @@ test "minor-unit loan schedules handle early payoff and currency scale" {
     None => fail("expected early payoff schedule")
   }
   match
-    equal_principal_money_schedule(
+    @amortize.equal_principal_money_schedule(
       @money.Money::of(1234, "JPY"),
       0.0,
       2,
@@ -205,7 +230,7 @@ test "minor-unit loan schedules handle early payoff and currency scale" {
 test "minor-unit schedules reject invalid or unrepresentable inputs" {
   let principal = @money.Money::of(10000, "USD")
   assert_true(
-    equal_installment_money_schedule(
+    @amortize.equal_installment_money_schedule(
       principal,
       -0.01,
       12,
@@ -214,7 +239,7 @@ test "minor-unit schedules reject invalid or unrepresentable inputs" {
     None,
   )
   assert_true(
-    equal_installment_money_schedule(
+    @amortize.equal_installment_money_schedule(
       principal,
       @double.infinity,
       12,
@@ -223,11 +248,16 @@ test "minor-unit schedules reject invalid or unrepresentable inputs" {
     None,
   )
   assert_true(
-    equal_installment_money_schedule(principal, 0.01, 0, @money.round_half_up()) ==
+    @amortize.equal_installment_money_schedule(
+      principal,
+      0.01,
+      0,
+      @money.round_half_up(),
+    ) ==
     None,
   )
   assert_true(
-    equal_installment_money_schedule(
+    @amortize.equal_installment_money_schedule(
       @money.Money::zero("USD"),
       0.01,
       12,
@@ -236,7 +266,7 @@ test "minor-unit schedules reject invalid or unrepresentable inputs" {
     None,
   )
   assert_true(
-    equal_installment_money_schedule(
+    @amortize.equal_installment_money_schedule(
       @money.Money::of(2147483647, "JPY"),
       1.0,
       1,
@@ -245,18 +275,28 @@ test "minor-unit schedules reject invalid or unrepresentable inputs" {
     None,
   )
   assert_true(
-    equal_principal_money_schedule(principal, -0.01, 12, @money.round_half_up()) ==
+    @amortize.equal_principal_money_schedule(
+      principal,
+      -0.01,
+      12,
+      @money.round_half_up(),
+    ) ==
     None,
   )
   assert_true(
-    equal_principal_money_schedule(principal, 0.01, -1, @money.round_half_up()) ==
+    @amortize.equal_principal_money_schedule(
+      principal,
+      0.01,
+      -1,
+      @money.round_half_up(),
+    ) ==
     None,
   )
 }
 
 ///|
 test "money schedule summary rejects empty schedule" {
-  assert_true(summarize_money_schedule([]) == None)
+  assert_true(@amortize.summarize_money_schedule([]) == None)
 }
 
 ///|
@@ -267,7 +307,7 @@ test "minor-unit schedules reconcile a grid of small principal and terms" {
     while periods <= 12 {
       let principal = @money.Money::of(minor, "CNY")
       let rows = match
-        equal_installment_money_schedule(
+        @amortize.equal_installment_money_schedule(
           principal,
           0.01,
           periods,
@@ -276,7 +316,7 @@ test "minor-unit schedules reconcile a grid of small principal and terms" {
         Some(value) => value
         None => fail("small valid loan must produce a schedule")
       }
-      let summary = match summarize_money_schedule(rows) {
+      let summary = match @amortize.summarize_money_schedule(rows) {
         Some(value) => value
         None => fail("small loan schedule must reconcile")
       }
@@ -293,7 +333,7 @@ test "extra principal shortens repayment while preserving exact reconciliation" 
   let principal = @money.Money::of(1000000, "CNY")
   let extra = [@money.Money::of(10000, "CNY")]
   let rows = match
-    equal_installment_money_schedule_with_extra_principal(
+    @amortize.equal_installment_money_schedule_with_extra_principal(
       principal,
       0.01,
       12,
@@ -303,12 +343,12 @@ test "extra principal shortens repayment while preserving exact reconciliation" 
     Some(value) => value
     None => fail("expected extra-payment plan")
   }
-  let summary = match summarize_money_schedule(rows) {
+  let summary = match @amortize.summarize_money_schedule(rows) {
     Some(value) => value
     None => fail("extra-payment plan must reconcile")
   }
   let baseline = match
-    equal_installment_money_schedule(
+    @amortize.equal_installment_money_schedule(
       principal,
       0.01,
       12,
@@ -317,7 +357,7 @@ test "extra principal shortens repayment while preserving exact reconciliation" 
     Some(value) => value
     None => fail("expected baseline plan")
   }
-  let baseline_summary = match summarize_money_schedule(baseline) {
+  let baseline_summary = match @amortize.summarize_money_schedule(baseline) {
     Some(value) => value
     None => fail("baseline plan must reconcile")
   }
@@ -331,7 +371,7 @@ test "extra principal shortens repayment while preserving exact reconciliation" 
 test "extra principal inputs must be valid for the loan" {
   let principal = @money.Money::of(10000, "USD")
   assert_true(
-    equal_installment_money_schedule_with_extra_principal(
+    @amortize.equal_installment_money_schedule_with_extra_principal(
       principal,
       0.01,
       2,
@@ -341,7 +381,7 @@ test "extra principal inputs must be valid for the loan" {
     None,
   )
   assert_true(
-    equal_installment_money_schedule_with_extra_principal(
+    @amortize.equal_installment_money_schedule_with_extra_principal(
       principal,
       0.01,
       2,
@@ -351,7 +391,7 @@ test "extra principal inputs must be valid for the loan" {
     None,
   )
   assert_true(
-    equal_installment_money_schedule_with_extra_principal(
+    @amortize.equal_installment_money_schedule_with_extra_principal(
       principal,
       0.01,
       1,

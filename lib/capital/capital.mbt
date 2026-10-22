@@ -55,7 +55,7 @@ fn compensated_add(
 /// One row of a discounted cash-flow breakdown. Period zero is the initial
 /// cash flow and is not discounted.
 pub struct DiscountedCashFlow {
-  period : Int
+  period : Int32
   cashflow : Double
   present_value : Double
 } derive(Debug, Eq)

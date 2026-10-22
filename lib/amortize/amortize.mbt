@@ -15,7 +15,7 @@ fn finite(x : Double) -> Bool {
 ///|
 /// 每期还款明细：期号、本金、利息与期末剩余本金。
 pub struct Payment {
-  period : Int
+  period : Int32
   principal : Double
   interest : Double
   balance : Double
@@ -25,7 +25,7 @@ pub struct Payment {
 /// Minor-unit repayment row. Interest and principal are rounded each period;
 /// the final payment is adjusted to clear the remaining balance exactly.
 pub struct MoneyPayment {
-  period : Int
+  period : Int32
   principal : @money.Money
   interest : @money.Money
   payment : @money.Money
@@ -35,7 +35,7 @@ pub struct MoneyPayment {
 ///|
 /// Aggregate values from a minor-unit repayment schedule.
 pub struct MoneyScheduleSummary {
-  periods : Int
+  periods : Int32
   principal : @money.Money
   interest : @money.Money
   payments : @money.Money
@@ -43,7 +43,7 @@ pub struct MoneyScheduleSummary {
 } derive(Debug, Eq)
 
 ///|
-fn round_nonnegative_to_int(value : Double, mode : @money.RoundMode) -> Int? {
+fn round_nonnegative_to_int(value : Double, mode : @money.RoundMode) -> Int32? {
   if !finite(value) || value < 0.0 || value > 2147483647.0 {
     return None
   }
@@ -62,7 +62,7 @@ fn round_nonnegative_to_int(value : Double, mode : @money.RoundMode) -> Int? {
 }
 
 ///|
-fn checked_minor_sum(a : Int, b : Int) -> Int? {
+fn checked_minor_sum(a : Int32, b : Int32) -> Int32? {
   let value = a.to_int64() + b.to_int64()
   if value < -2147483648L || value > 2147483647L {
     None
@@ -156,10 +156,10 @@ pub fn summarize_money_schedule(
 
 ///|
 fn rounded_interest_minor(
-  balance : Int,
+  balance : Int32,
   rate : Double,
   mode : @money.RoundMode,
-) -> Int? {
+) -> Int32? {
   round_nonnegative_to_int(balance.to_double() * rate, mode)
 }
 
@@ -171,7 +171,7 @@ fn rounded_interest_minor(
 pub fn equal_installment_money_schedule(
   principal : @money.Money,
   rate : Double,
-  periods : Int,
+  periods : Int32,
   mode : @money.RoundMode,
 ) -> Array[MoneyPayment]? {
   equal_installment_money_schedule_with_extra_principal(
@@ -191,7 +191,7 @@ pub fn equal_installment_money_schedule(
 pub fn equal_installment_money_schedule_with_extra_principal(
   principal : @money.Money,
   rate : Double,
-  periods : Int,
+  periods : Int32,
   extra_principal : Array[@money.Money],
   mode : @money.RoundMode,
 ) -> Array[MoneyPayment]? {
@@ -290,7 +290,7 @@ pub fn equal_installment_money_schedule_with_extra_principal(
 pub fn equal_principal_money_schedule(
   principal : @money.Money,
   rate : Double,
-  periods : Int,
+  periods : Int32,
   mode : @money.RoundMode,
 ) -> Array[MoneyPayment]? {
   if principal.minor() <= 0 || !finite(rate) || rate < 0.0 || periods <= 0 {
@@ -358,7 +358,7 @@ pub fn equal_principal_money_schedule(
 pub fn equal_installment_payment(
   principal : Double,
   rate : Double,
-  periods : Int,
+  periods : Int32,
 ) -> Double? {
   if !finite(principal) || !finite(rate) || rate <= -1.0 || periods <= 0 {
     return None
@@ -387,7 +387,7 @@ pub fn equal_installment_payment(
 pub fn equal_installment_schedule(
   principal : Double,
   rate : Double,
-  periods : Int,
+  periods : Int32,
 ) -> Array[Payment]? {
   let payment = match equal_installment_payment(principal, rate, periods) {
     Some(value) => value
@@ -415,7 +415,7 @@ pub fn equal_installment_schedule(
 pub fn equal_principal_schedule(
   principal : Double,
   rate : Double,
-  periods : Int,
+  periods : Int32,
 ) -> Array[Payment]? {
   if !finite(principal) || !finite(rate) || rate <= -1.0 || periods <= 0 {
     return None
@@ -445,7 +445,7 @@ pub fn equal_principal_schedule(
 pub fn total_interest_equal_installment(
   principal : Double,
   rate : Double,
-  periods : Int,
+  periods : Int32,
 ) -> Double? {
   match equal_installment_payment(principal, rate, periods) {
     Some(payment) => {
@@ -465,7 +465,7 @@ pub fn total_interest_equal_installment(
 pub fn total_interest_equal_principal(
   principal : Double,
   rate : Double,
-  periods : Int,
+  periods : Int32,
 ) -> Double? {
   if !finite(principal) || !finite(rate) || rate <= -1.0 || periods <= 0 {
     return None

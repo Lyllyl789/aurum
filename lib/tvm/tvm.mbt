@@ -10,7 +10,7 @@ fn finite(x : Double) -> Bool {
 }
 
 ///|
-fn valid_term(amount : Double, rate : Double, periods : Int) -> Bool {
+fn valid_term(amount : Double, rate : Double, periods : Int32) -> Bool {
   finite(amount) && finite(rate) && rate > -1.0 && periods >= 0
 }
 
@@ -29,7 +29,7 @@ fn checked(value : Double) -> Double? {
 /// percentages. Returns None for invalid or non-finite inputs/results.
 pub fn effective_annual_rate(
   nominal_annual_rate : Double,
-  periods_per_year : Int,
+  periods_per_year : Int32,
 ) -> Double? {
   if !finite(nominal_annual_rate) || periods_per_year <= 0 {
     return None
@@ -48,7 +48,7 @@ pub fn effective_annual_rate(
 /// compounded `periods_per_year` times. Rates are decimals, not percentages.
 pub fn nominal_annual_rate_from_effective(
   effective_rate : Double,
-  periods_per_year : Int,
+  periods_per_year : Int32,
 ) -> Double? {
   if !finite(effective_rate) || effective_rate <= -1.0 || periods_per_year <= 0 {
     return None
@@ -60,7 +60,7 @@ pub fn nominal_annual_rate_from_effective(
 
 ///|
 /// FV = PV × (1+r)^n. None for non-finite values, r <= -1, or n < 0.
-pub fn future_value(pv : Double, rate : Double, periods : Int) -> Double? {
+pub fn future_value(pv : Double, rate : Double, periods : Int32) -> Double? {
   if !valid_term(pv, rate, periods) {
     return None
   }
@@ -69,7 +69,7 @@ pub fn future_value(pv : Double, rate : Double, periods : Int) -> Double? {
 
 ///|
 /// PV = FV / (1+r)^n. Uses a negative exponent to avoid overflow in the divisor.
-pub fn present_value(fv : Double, rate : Double, periods : Int) -> Double? {
+pub fn present_value(fv : Double, rate : Double, periods : Int32) -> Double? {
   if !valid_term(fv, rate, periods) {
     return None
   }
@@ -81,7 +81,7 @@ pub fn present_value(fv : Double, rate : Double, periods : Int) -> Double? {
 pub fn future_value_annuity(
   payment : Double,
   rate : Double,
-  periods : Int,
+  periods : Int32,
 ) -> Double? {
   if !valid_term(payment, rate, periods) {
     return None
@@ -102,7 +102,7 @@ pub fn future_value_annuity(
 pub fn present_value_annuity(
   payment : Double,
   rate : Double,
-  periods : Int,
+  periods : Int32,
 ) -> Double? {
   if !valid_term(payment, rate, periods) {
     return None
@@ -123,7 +123,7 @@ pub fn present_value_annuity(
 pub fn future_value_annuity_due(
   payment : Double,
   rate : Double,
-  periods : Int,
+  periods : Int32,
 ) -> Double? {
   match future_value_annuity(payment, rate, periods) {
     Some(value) => checked(value * (1.0 + rate))
@@ -136,7 +136,7 @@ pub fn future_value_annuity_due(
 pub fn present_value_annuity_due(
   payment : Double,
   rate : Double,
-  periods : Int,
+  periods : Int32,
 ) -> Double? {
   match present_value_annuity(payment, rate, periods) {
     Some(value) => checked(value * (1.0 + rate))

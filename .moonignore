@@ -1,0 +1,13 @@
+# Generated output and local-only files
+target/
+_build/
+.mooncakes/
+.moon/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+logs/
+
+# Application drafts are not part of the published library
+*申报书*.md

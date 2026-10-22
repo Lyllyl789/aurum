@@ -1,7 +1,7 @@
 import {
-  "aurum/lib/money",
-  "aurum/lib/capital",
-  "aurum/lib/amortize",
+  "Lyllyl789/aurum/lib/money",
+  "Lyllyl789/aurum/lib/capital",
+  "Lyllyl789/aurum/lib/amortize",
 }
 
 pkgtype(kind: "executable")

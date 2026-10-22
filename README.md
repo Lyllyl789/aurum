@@ -4,17 +4,17 @@
 
 Aurum 是一个用 [MoonBit](https://www.moonbitlang.com) 编写的基础金融计算库，重点验证 MoonBit 中金额表示、常见现金流公式和失败边界的清晰契约。
 
-项目范围刻意限定为单币种最小单位金额、基础 TVM/资本预算计算和周期性贷款公式；折旧、债券、比率与外部汇率是小型公式模块示例，不构成完整会计系统或生产级估值平台。Aurum 不处理实时行情、日期日历、票息日程、收益率曲线、会计准则或法规校验，也不宣称替代 NumPy Financial、Python Decimal 或 QuantLib。功能边界、对标依据和可复现回归值见[功能对照与回归验证](notes/comparison-and-acceptance.md)。
+项目范围刻意限定为单币种最小单位金额、基础 TVM/资本预算计算和周期性贷款公式；折旧、债券、比率与外部汇率是小型公式模块示例，不构成完整会计系统或生产级估值平台。Aurum 不处理实时行情、日期日历、票息日程、收益率曲线、会计准则或法规校验，也不宣称替代 NumPy Financial、Python Decimal 或 QuantLib。功能边界、对标依据和可复现回归值见[功能对照与数值回归](notes/comparison-and-regression.md)。
 
-## 版本演进与维护范围
+## 维护记录
 
-以下按提交区分九月已有能力和十月维护改进，便于使用者核对功能来源及数值行为。
+以下按提交说明功能来源和维护改进，便于使用者核对实现与数值行为。
 
-- **九月已有基础**：以 [2026-09-30 的 `8e9cd48`](https://github.com/Lyllyl789/aurum/commit/8e9cd48b95d8102589d87131572ae58406263a92) 为代码比较基线。下列八个模块及金额解析/分摊、名义/有效年利率换算、NPV 逐期明细、按最小单位舍入的贷款计划和摘要对账均已存在，属于项目累计能力。
-- **十月已完成改进**：[`d621e51`](https://github.com/Lyllyl789/aurum/commit/d621e518f3c83ecb672b2905b76dac55f768bb8c) 为现有 NPV 合计加入 Neumaier 补偿求和，新增一项抵消现金流回归测试及对应 CLI 演示，并更新说明；这是数值稳定性维护，不是首次实现资本预算模块。
-- **场景与复现**：十月增加三个固定输入的串联示例和完整导入示例，分别展示金额分摊、现金流估算和还款计划；这些是合成样例，不代表真实用户反馈或业务效果。
+- **模块基线**：以 [2026-09-30 的 `8e9cd48`](https://github.com/Lyllyl789/aurum/commit/8e9cd48b95d8102589d87131572ae58406263a92) 为功能比较基线，包含八个公式模块及金额解析/分摊、利率换算、NPV 逐期明细和按最小单位舍入的还款计划。
+- **数值稳定性**：[`d621e51`](https://github.com/Lyllyl789/aurum/commit/d621e518f3c83ecb672b2905b76dac55f768bb8c) 为 NPV 逐期现值求和加入 Neumaier 补偿，附抵消输入回归测试和 CLI 演示。
+- **场景与复现**：仓库提供金额分摊、现金流估算和还款对账的固定输入场景，以及完整导入示例；输入为设计样例，不代表真实用户反馈或业务效果。
 
-功能边界、版本差异和验证方式见[功能范围与版本记录](notes/season-plan.md)；固定输入的使用示例见[使用场景说明](notes/use-cases.md)。
+功能边界、版本差异和验证方式见[功能范围与维护记录](notes/maintenance-history.md)；固定输入的使用示例见[使用场景说明](notes/use-cases.md)。
 
 ## 为什么是 Aurum
 
@@ -27,7 +27,7 @@ MoonBit 生态已有十进制数值、固定收益现金流、整数贷款和会
 Aurum 处理三个可从代码验证的基础计算问题：十进制金额和分摊尾差的守恒、等间隔现金流的时间点与数值合计、按分舍入还款计划的逐期对账。
 
 - **金额分摊**：解析 `100.00 CNY`，按 `[1, 2, 3]` 分配为 `16.67 / 33.33 / 50.00`，核对合计。
-- **现金流审阅**：展示 `[-1000, 300, 400, 500]` 在每期 10% 折现率下的逐期现值、NPV 和 IRR；另用抵消压力样例说明十月 NPV 改进。
+- **现金流审阅**：展示 `[-1000, 300, 400, 500]` 在每期 10% 折现率下的逐期现值、NPV 和 IRR；另用抵消压力样例说明补偿求和的作用。
 - **还款测算**：生成 `10000.00 CNY`、每期 1%、12 期的分位计划，对账并比较首期额外还本 `100.00 CNY` 的模型结果。
 
 以上均为**设计场景 / 待验证**，固定输入来自已有回归样例，不能视为真实用户案例或已验证业务收益。每个场景的用户、输入、步骤、输出、价值、功能证据及待补真实材料见[实际问题与完整使用场景](notes/use-cases.md)。运行 `moon run examples/use-cases` 可查看完整流程；这是固定输入的开发者演示。
@@ -46,22 +46,22 @@ Aurum 处理三个可从代码验证的基础计算问题：十进制金额和�
 
 ## 安装与快速复现
 
-先安装 Git，再使用 [MoonBit 官方安装器](https://www.moonbitlang.com/download/#moonbit-cli-tools)安装本仓库实测的构建 **`0.10.11+6ff76a5f9`**。安装器的版本参数对应 `moonc` 构建号，与下文 `moon` 的版本号不同。VS Code 插件不是运行 CLI 的前提。
+先安装 Git，再使用 [MoonBit 官方安装器](https://www.moonbitlang.com/download/#moonbit-cli-tools)安装本仓库实测的构建 **`0.10.15+943464bfa`**。安装器的版本参数对应 `moonc` 构建号，与下文 `moon` 的版本号不同。VS Code 插件不是运行 CLI 的前提。
 
 Windows PowerShell：
 
 ```powershell
-$env:MOONBIT_INSTALL_VERSION = "0.10.11+6ff76a5f9"
+$env:MOONBIT_INSTALL_VERSION = "0.10.15+943464bfa"
 irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
 ```
 
 Linux / macOS（官方安装器命令；本次本地验证环境为 Windows，Linux 由 CI 验证）：
 
 ```sh
-curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s -- '0.10.11+6ff76a5f9'
+curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s -- '0.10.15+943464bfa'
 ```
 
-安装后打开新终端，在克隆前运行 `moon version --all`，确认 `moonc v0.10.11+6ff76a5f9`。已有其他工具链时也须核对当前 `PATH` 选择的版本；不要仅凭安装器执行成功判断版本已切换。
+安装后打开新终端，在克隆前运行 `moon version --all`，确认 `moonc v0.10.15+943464bfa`。已有其他工具链时也须核对当前 `PATH` 选择的版本；不要仅凭安装器执行成功判断版本已切换。
 
 ```sh
 git clone https://github.com/Lyllyl789/aurum.git
@@ -76,7 +76,7 @@ moon run examples/use-cases
 moon run examples/readme
 ```
 
-以上命令在仓库根目录执行，适用于 PowerShell 和常见 POSIX shell。`moon.mod` 声明模块名 **`aurum`**、版本 **`0.1.0`**，没有第三方模块依赖；标准库随工具链提供，无须执行 `moon add`、登录 Mooncakes 或配置 API 密钥。GitHub 仓库名不等于 MoonBit 模块名，不能将导入路径写成 `Lyllyl789/aurum/...`。
+以上命令在仓库根目录执行，适用于 PowerShell 和常见 POSIX shell。`moon.mod` 声明模块名 **`Lyllyl789/aurum`**、版本 **`0.1.0`**，没有第三方模块依赖；标准库随工具链提供。
 
 三个入口均使用固定输入：`bin` 展示八个模块；`examples/use-cases` 串联金额分摊、现金流和还款场景；`examples/readme` 对应下文可复制的完整代码。`bin` 是开发者演示程序，没有交互输入、行情服务或 Web 界面。
 
@@ -92,9 +92,9 @@ moon test lib/money lib/tvm lib/capital lib/amortize lib/integration
 moon test lib/capital
 ```
 
-`moon fmt --check` 只检查格式；需要修改格式时运行 `moon fmt`，然后重新检查。`moon check` 检查类型及包导入；`moon test` 运行全部测试，包含金额精度/溢出、拒绝输入、浮点误差、NPV 抵消回归和跨模块对账。定向核心测试为 68 项，capital 为 10 项，全量为 93 项（累计测试，非十月全部新增）。任一命令非零退出均须处理；这些检查不证明生产适用性或业务口径适合具体用途。
+`moon fmt --check` 只检查格式；需要修改格式时运行 `moon fmt`，然后重新检查。`moon check` 检查类型及包导入；`moon test` 运行全部测试，包含金额精度/溢出、拒绝输入、浮点误差、NPV 抵消回归和跨模块对账。定向核心测试为 68 项，capital 为 10 项，全量为 93 项。任一命令非零退出均须处理；这些检查不证明生产适用性或业务口径适合具体用途。
 
-2026-10-12 在 Windows 上实测：`moon 0.1.20260827 (d0aaa07 2026-08-27)`、`moonc v0.10.11+6ff76a5f9 (2026-08-28)`、`moonrun 0.1.20260827`。配置使用 `moon.mod` / `moon.pkg` 文本格式，未测定最低兼容版本；不能识别这些文件的工具链应按上文安装已验证构建。默认 wasm-gc 后端通过上述检查、93 项测试和三个演示，无须额外安装 Node.js 或本地 C 编译器。
+2026-10-22 在 Windows 上实测：`moon 0.1.20261012 (748b63c 2026-10-12)`、`moonc v0.10.15+943464bfa`、`moonrun 0.1.20261012`。配置使用 `moon.mod` / `moon.pkg` 文本格式；默认 wasm-gc 后端通过格式检查、类型检查、93 项测试和三个演示，无须额外安装 Node.js 或本地 C 编译器。
 
 另在同一 Windows 工具链和 Node.js v24.19.0 环境实测 JS 后端：
 
@@ -106,9 +106,9 @@ moon run --target js examples/use-cases
 moon run --target js examples/readme
 ```
 
-JS 后端全量 93 项测试通过；运行 JS 需要可从 `PATH` 调用的 Node.js。CI 在 Ubuntu 22.04 安装与上述实测相同的 `0.10.11+6ff76a5f9` 构建，检查格式、类型、测试及三个默认后端演示；远端结果以 [GitHub Actions](https://github.com/Lyllyl789/aurum/actions) 对应提交的状态为准。macOS、native、llvm 和其他工具链版本未在本次本地复现中验证，不宣称全平台兼容。
+JS 后端全量 93 项测试通过；运行 JS 需要可从 `PATH` 调用的 Node.js。CI 在 Ubuntu 22.04 安装与上述实测相同的 `0.10.15+943464bfa` 构建，检查格式、类型、构建、测试及三个默认后端演示；远端结果以 [GitHub Actions](https://github.com/Lyllyl789/aurum/actions) 对应提交的状态为准。macOS、native、llvm 和其他工具链版本未在本次本地复现中验证，不宣称全平台兼容。
 
-不要将安装器参数改为 `latest` 后直接假定复现结果相同：2026-10-12 的 `moonc v0.10.15+943464bfa` 格式器要求把现有 `Int` 声明迁移为 `Int32`，使未迁移源码的 `moon fmt --check` 失败。首次 README 提交的 [CI 失败日志](https://github.com/Lyllyl789/aurum/actions/runs/38238057636)记录了这一差异；仓库通过固定已验证构建修复环境漂移。后续工具链升级需重新检查全部命令。
+CI 与复现步骤固定使用 MoonBit 编译器 `0.10.15+943464bfa`，高于项目要求的 `moonc >= 0.10.14`。更新工具链时需重新运行格式、类型、构建、测试和所有示例。
 
 ## 目录结构
 
@@ -139,16 +139,16 @@ aurum/
 
 ```moonbit
 import {
-  "aurum/lib/money",
-  "aurum/lib/tvm",
-  "aurum/lib/capital",
-  "aurum/lib/amortize",
+  "Lyllyl789/aurum/lib/money",
+  "Lyllyl789/aurum/lib/tvm",
+  "Lyllyl789/aurum/lib/capital",
+  "Lyllyl789/aurum/lib/amortize",
 }
 
 pkgtype(kind: "executable")
 ```
 
-包的默认别名是路径最后一段，例如 `aurum/lib/money` 对应 `@money`。其余四个库包为 `aurum/lib/wear`、`aurum/lib/bond`、`aurum/lib/ratio`、`aurum/lib/currency`；按需要添加导入。根目录没有提供汇总所有 API 的 `aurum` 包。
+包的默认别名是路径最后一段，例如 `Lyllyl789/aurum/lib/money` 对应 `@money`。其余四个库包为 `Lyllyl789/aurum/lib/wear`、`Lyllyl789/aurum/lib/bond`、`Lyllyl789/aurum/lib/ratio`、`Lyllyl789/aurum/lib/currency`；按需要添加导入。根目录没有提供汇总所有 API 的 `aurum` 包。
 
 以下是完整 `main.mbt`，与 [examples/readme/main.mbt](examples/readme/main.mbt) 的执行代码一致。金额构造使用整数最小单位（CNY 为分），利率按每期小数传入；对返回 `Option` 的 API 显式处理 `None`。演示遇到这些失败会中止，实际应用应按自身需求返回错误或提示用户。
 
@@ -211,52 +211,28 @@ NPV 估算 = -21.03681442524436
 贷款期末余额 CNY = 0.00
 ```
 
-### 从另一个本地 MoonBit 模块导入
+### 从 Mooncakes 使用
 
-复现采用公开 Git 源码，不假定 `aurum@0.1.0` 已在 Mooncakes 发布。准备一个新目录 `consumer-workspace`，将本仓库克隆为其子目录 `aurum`，并创建以下文件布局：
-
-```text
-consumer-workspace/
-├── moon.work
-├── aurum/                 # git clone 得到的本仓库
-└── consumer-app/
-    ├── moon.mod
-    └── main/
-        ├── moon.pkg
-        └── main.mbt
-```
-
-`consumer-workspace/moon.work`：
-
-```moonbit
-members = [
-  "aurum",
-  "consumer-app",
-]
-```
-
-`consumer-app/moon.mod`：
-
-```moonbit
-name = "consumer-app"
-
-version = "0.1.0"
-
-import {
-  "aurum@0.1.0",
-}
-```
-
-将上文 `moon.pkg` 和完整 `main.mbt` 分别保存到 `consumer-app/main/`。在 `consumer-workspace` 目录执行：
+发布后可在 MoonBit 消费项目中添加依赖：
 
 ```sh
-moon -C consumer-app fmt --check
-moon -C consumer-app check
-moon -C consumer-app run main
+moon add Lyllyl789/aurum@0.1.0
 ```
 
-结果应与仓库内示例一致。[MoonBit 本地工作区规则](https://docs.moonbitlang.com/en/latest/toolchain/moon/module.html#dependency-management)使 `aurum` 从 `moon.work` 的本地成员解析；`0.1.0` 对照本仓库元数据填写，不是已发布版本的证明。缺少工作区配置会导致依赖无法按这个流程解析；仅复制 `.mbt` 或仅在包文件中写 `import` 不能替代模块依赖声明。
+在可执行包的 `moon.pkg` 中按需导入模块包：
 
+```moonbit
+import {
+  "Lyllyl789/aurum/lib/money",
+  "Lyllyl789/aurum/lib/tvm",
+  "Lyllyl789/aurum/lib/capital",
+  "Lyllyl789/aurum/lib/amortize",
+}
+
+pkgtype(kind: "executable")
+```
+
+然后从消费项目根目录运行 `moon check` 和 `moon run main`。包别名默认取路径最后一段，例如 `Lyllyl789/aurum/lib/money` 对应 `@money`。其余模块包括 `wear`、`bond`、`ratio`、`currency`；需要时逐项添加导入。根目录不提供汇总全部 API 的单一包。
 ### 货币 API 约定
 
 `Money::of(minor, currency)` 和 `Money::zero(currency)` 只接受当前列出的代码，金额始终是该币种的整数最小单位。当前支持 CNY、USD、EUR、GBP（2 位小数），JPY、KRW、VND（0 位），KWD、BHD、OMR、JOD、TND（3 位）；这不是完整 ISO 4217 数据库。`currency_decimals(code)` 返回受支持币种的小数位数。未知代码或大小写错误会中止，构造函数不返回 `Option`。
@@ -325,7 +301,7 @@ TVM 使用 IEEE-754 `Double` 复利计算，适合估算，不保证分级精度
 - **设计规范**：[设计笔记](notes/design.md) 详细记录了各模块实现边界与数值精度策略。
 - **AI 辅助说明**：[AI 辅助与人工决策](notes/ai-assistance.md) 说明实际 AI 参与范围及项目负责人的决策责任。
 - **开发记录**：[功能变化与验证记录](notes/development-log.md) 按阶段概述项目改动、AI 辅助范围和可复现检查。
-- **功能对照与回归验证**：[功能对照与回归验证](notes/comparison-and-acceptance.md) 记录了项目功能范围、成熟工具功能矩阵对照、差异说明和固定可复现回归值。
+- **功能对照与数值回归**：[功能对照与数值回归](notes/comparison-and-regression.md) 记录了项目功能范围、成熟工具功能矩阵对照、差异说明和固定可复现回归值。
 
 ## 参考来源
 

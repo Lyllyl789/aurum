@@ -1,5 +1,4 @@
 import {
-  "aurum/lib/tvm",
+  "Lyllyl789/aurum/lib/tvm",
   "moonbitlang/core/math",
-  "moonbitlang/core/double",
 }

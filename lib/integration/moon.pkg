@@ -1,8 +1,7 @@
 import {
-  "aurum/lib/money",
-  "aurum/lib/currency",
-  "aurum/lib/amortize",
-  "aurum/lib/tvm",
-  "aurum/lib/capital",
-  "moonbitlang/core/double",
+  "Lyllyl789/aurum/lib/money",
+  "Lyllyl789/aurum/lib/currency",
+  "Lyllyl789/aurum/lib/amortize",
+  "Lyllyl789/aurum/lib/tvm",
+  "Lyllyl789/aurum/lib/capital",
 }

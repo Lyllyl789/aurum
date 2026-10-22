@@ -15,6 +15,12 @@ pub enum RoundMode {
 } derive(Debug, Eq)
 
 ///|
+pub extend RoundMode with Eq::{not_equal, equal}
+
+///|
+pub extend RoundMode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// 返回“四舍五入”舍入策略。
 /// 无负载枚举在 blackbox 测试与外部调用中不可直接构造，故提供构造辅助函数。
 pub fn round_half_up() -> RoundMode {
@@ -46,6 +52,12 @@ pub struct Money {
   priv minor : Int32
   priv currency : String
 } derive(Debug, Eq)
+
+///|
+pub extend Money with Eq::{not_equal, equal}
+
+///|
+pub extend Money with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// 返回以最小货币单位表示的整数金额。

@@ -1,5 +1,6 @@
 import {
   "Lyllyl789/aurum/lib/money",
+  "moonbitlang/core/debug",
   "moonbitlang/core/math",
 }
 

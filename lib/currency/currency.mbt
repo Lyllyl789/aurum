@@ -20,6 +20,12 @@ pub struct Currency {
 } derive(Debug, Eq)
 
 ///|
+pub extend Currency with Eq::{not_equal, equal}
+
+///|
+pub extend Currency with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// 按 ISO 4217 代码查询货币元数据；未知代码返回 None。
 pub fn lookup(code : String) -> Currency? {
   match code {

@@ -61,6 +61,12 @@ pub struct DiscountedCashFlow {
 } derive(Debug, Eq)
 
 ///|
+pub extend DiscountedCashFlow with Eq::{not_equal, equal}
+
+///|
+pub extend DiscountedCashFlow with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// NPV = Σ CF_t / (1+r)^t. Neumaier compensation reduces loss of small terms
 /// when discounted cash flows of different magnitudes cancel. None for
 /// empty/non-finite cash flows, an invalid rate, or a non-finite sum.

@@ -22,6 +22,12 @@ pub struct Payment {
 } derive(Debug, Eq)
 
 ///|
+pub extend Payment with Eq::{not_equal, equal}
+
+///|
+pub extend Payment with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// Minor-unit repayment row. Interest and principal are rounded each period;
 /// the final payment is adjusted to clear the remaining balance exactly.
 pub struct MoneyPayment {
@@ -33,6 +39,12 @@ pub struct MoneyPayment {
 } derive(Debug, Eq)
 
 ///|
+pub extend MoneyPayment with Eq::{not_equal, equal}
+
+///|
+pub extend MoneyPayment with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// Aggregate values from a minor-unit repayment schedule.
 pub struct MoneyScheduleSummary {
   periods : Int32
@@ -41,6 +53,12 @@ pub struct MoneyScheduleSummary {
   payments : @money.Money
   ending_balance : @money.Money
 } derive(Debug, Eq)
+
+///|
+pub extend MoneyScheduleSummary with Eq::{not_equal, equal}
+
+///|
+pub extend MoneyScheduleSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 fn round_nonnegative_to_int(value : Double, mode : @money.RoundMode) -> Int32? {

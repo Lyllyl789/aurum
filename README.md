@@ -76,7 +76,7 @@ moon run examples/use-cases
 moon run examples/readme
 ```
 
-以上命令在仓库根目录执行，适用于 PowerShell 和常见 POSIX shell。`moon.mod` 声明模块名 **`Lyllyl789/aurum`**、版本 **`0.1.0`**，没有第三方模块依赖；标准库随工具链提供。
+以上命令在仓库根目录执行，适用于 PowerShell 和常见 POSIX shell。`moon.mod` 声明模块名 **`Lyllyl789/aurum`**、版本 **`0.1.1`**，没有第三方模块依赖；标准库随工具链提供。
 
 三个入口均使用固定输入：`bin` 展示八个模块；`examples/use-cases` 串联金额分摊、现金流和还款场景；`examples/readme` 对应下文可复制的完整代码。`bin` 是开发者演示程序，没有交互输入、行情服务或 Web 界面。
 
@@ -216,7 +216,7 @@ NPV 估算 = -21.03681442524436
 发布后可在 MoonBit 消费项目中添加依赖：
 
 ```sh
-moon add Lyllyl789/aurum@0.1.0
+moon add Lyllyl789/aurum@0.1.1
 ```
 
 在可执行包的 `moon.pkg` 中按需导入模块包：
